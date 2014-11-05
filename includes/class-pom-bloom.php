@@ -167,7 +167,17 @@ class POM_Bloom {
 			__('Bloom Category', 'pom-bloom'),
 			array('bloom-assessments','bloom-goals'),
 			array(
-				'show_in_menu' => false,
+				'hierarchical' => true,
+				'public' => false,
+				'show_ui' => true,
+				'show_in_nav_menus' => true,
+				'show_tagcloud' => false,
+				'meta_box_cb' => null,
+				'show_admin_column' => true,
+				'update_count_callback' => '',
+				'query_var' => $this->taxonomy,
+				'rewrite' => false,
+				'sort' => '',
 			)
 		);
 	} // End __construct ()
