@@ -36,7 +36,15 @@ class POM_Bloom_Taxonomy {
 	 */
 	public $post_types;
 
-	public function __construct ( $taxonomy = '', $plural = '', $single = '', $post_types = array() ) {
+    /**
+     * Array of additional arguments
+     * @var array
+     * @access  public
+     * @since   1.0.0
+     */
+    public $args;
+
+	public function __construct ( $taxonomy = '', $plural = '', $single = '', $post_types = array(), $args ) {
 
 		if ( ! $taxonomy || ! $plural || ! $single ) return;
 
@@ -48,6 +56,7 @@ class POM_Bloom_Taxonomy {
 			$post_types = array( $post_types );
 		}
 		$this->post_types = $post_types;
+        $this->args = $args;
 
 		// Register taxonomy
 		add_action('init', array( $this, 'register_taxonomy' ) );
@@ -79,7 +88,7 @@ class POM_Bloom_Taxonomy {
             'not_found' =>  sprintf( __( 'No %s found' , 'pom-bloom' ), $this->plural ),
         );
 
-        $args = array(
+        $args = shortcode_atts(array(
         	'label' => $this->plural,
         	'labels' => apply_filters( $this->taxonomy . '_labels', $labels ),
         	'hierarchical' => true,
@@ -93,7 +102,7 @@ class POM_Bloom_Taxonomy {
             'query_var' => $this->taxonomy,
             'rewrite' => true,
             'sort' => '',
-        );
+        ), $this->args);
 
         register_taxonomy( $this->taxonomy, $this->post_types, apply_filters( $this->taxonomy . '_register_args', $args, $this->taxonomy, $this->post_types ) );
     }

@@ -48,7 +48,7 @@ class POM_Bloom_Settings {
 		add_action( 'admin_init' , array( $this, 'register_settings' ) );
 
 		// Add settings page to menu
-		add_action( 'admin_menu' , array( $this, 'add_menu_item' ) );
+		add_action( 'admin_menu' , array( $this, 'add_menu_item' ), 9 );
 
 		// Add settings link to plugins page
 		add_filter( 'plugin_action_links_' . plugin_basename( $this->parent->file ) , array( $this, 'add_settings_link' ) );
@@ -67,7 +67,28 @@ class POM_Bloom_Settings {
 	 * @return void
 	 */
 	public function add_menu_item () {
-		$page = add_options_page( __( 'Plugin Settings', 'pom-bloom' ) , __( 'Plugin Settings', 'pom-bloom' ) , 'manage_options' , $this->parent->_token . '_settings' ,  array( $this, 'settings_page' ) );
+//		$page = add_options_page( __( 'Bloom Settings', 'pom-bloom' ) , __( 'Bloom Settings', 'pom-bloom' ) , 'manage_options' , $this->parent->_token . '_settings' ,  array( $this, 'settings_page' ) );
+		$page = add_menu_page(
+			__( 'Bloom', 'pom-bloom' ) ,
+			__( 'Bloom', 'pom-bloom' ) ,
+			'manage_options' ,
+			$this->parent->_token . '_settings'
+		);
+		add_submenu_page(
+			$this->parent->_token . '_settings',
+			__('Bloom Settings', 'pom-bloom'),
+			__('Settings', 'pom_bloom'),
+			'manage_options',
+			$this->parent->_token . '_settings' ,
+			array($this,'settings_page')
+			);
+		add_submenu_page(
+			$this->parent->_token. '_settings',
+			__('Bloom Categories', 'pom-bloom'),
+			__('Categories', 'pom-bloom'),
+			'manage_options',
+			'edit-tags.php?taxonomy=bloom-categories'
+		);
 		add_action( 'admin_print_styles-' . $page, array( $this, 'settings_assets' ) );
 	}
 
@@ -108,16 +129,16 @@ class POM_Bloom_Settings {
 	private function settings_fields () {
 
 		$settings['standard'] = array(
-			'title'					=> __( 'Standard', 'pom-bloom' ),
+			'title'					=> __( 'Settings', 'pom-bloom' ),
 			'description'			=> __( 'These are fairly standard form input fields.', 'pom-bloom' ),
 			'fields'				=> array(
 				array(
-					'id' 			=> 'text_field',
-					'label'			=> __( 'Some Text' , 'pom-bloom' ),
-					'description'	=> __( 'This is a standard text field.', 'pom-bloom' ),
-					'type'			=> 'text',
+					'id' 			=> 'sales_page',
+					'label'			=> __( 'Bloom Sales Page' , 'pom-bloom' ),
+					'description'	=> __( 'Select the Blom Sales Page', 'pom-bloom' ),
+					'type'			=> 'select',
 					'default'		=> '',
-					'placeholder'	=> __( 'Placeholder text', 'pom-bloom' )
+					'options' => []
 				),
 				array(
 					'id' 			=> 'password_field',
@@ -177,9 +198,46 @@ class POM_Bloom_Settings {
 			)
 		);
 
-		$settings['extra'] = array(
-			'title'					=> __( 'Extra', 'pom-bloom' ),
-			'description'			=> __( 'These are some extra input fields that maybe aren\'t as common as the others.', 'pom-bloom' ),
+		$settings['goals'] = array(
+			'title'					=> __( 'Goals', 'pom-bloom' ),
+			'description'			=> __( 'Manage standard Bloom Goals', 'pom-bloom' ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'number_field',
+					'label'			=> __( 'A Number' , 'pom-bloom' ),
+					'description'	=> __( 'This is a standard number field - if this field contains anything other than numbers then the form will not be submitted.', 'pom-bloom' ),
+					'type'			=> 'number',
+					'default'		=> '',
+					'placeholder'	=> __( '42', 'pom-bloom' )
+				),
+				array(
+					'id' 			=> 'colour_picker',
+					'label'			=> __( 'Pick a colour', 'pom-bloom' ),
+					'description'	=> __( 'This uses WordPress\' built-in colour picker - the option is stored as the colour\'s hex code.', 'pom-bloom' ),
+					'type'			=> 'color',
+					'default'		=> '#21759B'
+				),
+				array(
+					'id' 			=> 'an_image',
+					'label'			=> __( 'An Image' , 'pom-bloom' ),
+					'description'	=> __( 'This will upload an image to your media library and store the attachment ID in the option field. Once you have uploaded an imge the thumbnail will display above these buttons.', 'pom-bloom' ),
+					'type'			=> 'image',
+					'default'		=> '',
+					'placeholder'	=> ''
+				),
+				array(
+					'id' 			=> 'multi_select_box',
+					'label'			=> __( 'A Multi-Select Box', 'pom-bloom' ),
+					'description'	=> __( 'A standard multi-select box - the saved data is stored as an array.', 'pom-bloom' ),
+					'type'			=> 'select_multi',
+					'options'		=> array( 'linux' => 'Linux', 'mac' => 'Mac', 'windows' => 'Windows' ),
+					'default'		=> array( 'linux' )
+				)
+			)
+		);
+		$settings['categories'] = array(
+			'title'					=> __( 'Categories', 'pom-bloom' ),
+			'description'			=> __( 'Manage Goal Categories', 'pom-bloom' ),
 			'fields'				=> array(
 				array(
 					'id' 			=> 'number_field',
@@ -278,7 +336,7 @@ class POM_Bloom_Settings {
 
 		// Build page HTML
 		$html = '<div class="wrap" id="' . $this->parent->_token . '_settings">' . "\n";
-			$html .= '<h2>' . __( 'Plugin Settings' , 'pom-bloom' ) . '</h2>' . "\n";
+			$html .= '<h2>' . __( 'Bloom Settings' , 'pom-bloom' ) . '</h2>' . "\n";
 
 			$tab = '';
 			if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {

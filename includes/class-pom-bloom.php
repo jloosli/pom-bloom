@@ -112,6 +112,64 @@ class POM_Bloom {
 		// Handle localisation
 		$this->load_plugin_textdomain();
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );
+
+		// Add New Post Type
+		$this->register_post_type(
+			'bloom-assessments',
+			'Bloom Assessment Questions',
+			'Bloom Assessment Question',
+			'Assessment questions for Bloom',
+			array(
+				'public' => false,
+				'publicly_queryable' => false,
+				'exclude_from_search' => true,
+				'show_ui' => true,
+				'show_in_menu' => 'pom_bloom_settings',
+				'show_in_nav_menus' => false,
+				'query_var' => false,
+				'can_export' => true,
+				'rewrite' => false,
+				'capability_type' => 'post',
+				'has_archive' => false,
+				'hierarchical' => false,
+				'supports' => array( 'title' ),
+				'menu_position' => 5,
+				'menu_icon' => 'dashicons-admin-post',
+			)
+		);
+		$this->register_post_type(
+			'bloom-goals',
+			'Bloom Suggested Goals',
+			'Bloom Suggested Goal',
+			'Suggested Goals',
+			array(
+				'public' => false,
+				'publicly_queryable' => false,
+				'exclude_from_search' => true,
+				'show_ui' => true,
+				'show_in_menu' => 'pom_bloom_settings',
+				'show_in_nav_menus' => false,
+				'query_var' => false,
+				'can_export' => true,
+				'rewrite' => false,
+				'capability_type' => 'post',
+				'has_archive' => false,
+				'hierarchical' => false,
+				'supports' => array( 'title' ),
+				'menu_position' => 20,
+				'menu_icon' => 'dashicons-admin-post',
+			)
+
+		);
+		$this->register_taxonomy(
+			'bloom-categories',
+			__('Bloom Categories', 'pom-bloom'),
+			__('Bloom Category', 'pom-bloom'),
+			array('bloom-assessments','bloom-goals'),
+			array(
+				'show_in_menu' => false,
+			)
+		);
 	} // End __construct ()
 
 	/**
@@ -122,11 +180,11 @@ class POM_Bloom {
 	 * @param  string $description Description of post type
 	 * @return object              Post type class object
 	 */
-	public function register_post_type ( $post_type = '', $plural = '', $single = '', $description = '' ) {
+	public function register_post_type ( $post_type = '', $plural = '', $single = '', $description = '', $args = array() ) {
 
 		if ( ! $post_type || ! $plural || ! $single ) return;
 
-		$post_type = new POM_Bloom_Post_Type( $post_type, $plural, $single, $description );
+		$post_type = new POM_Bloom_Post_Type( $post_type, $plural, $single, $description, $args );
 
 		return $post_type;
 	}
@@ -139,11 +197,11 @@ class POM_Bloom {
 	 * @param  array  $post_types Post types to which this taxonomy applies
 	 * @return object             Taxonomy class object
 	 */
-	public function register_taxonomy ( $taxonomy = '', $plural = '', $single = '', $post_types = array() ) {
+	public function register_taxonomy ( $taxonomy = '', $plural = '', $single = '', $post_types = array(), $args = array() ) {
 
 		if ( ! $taxonomy || ! $plural || ! $single ) return;
 
-		$taxonomy = new POM_Bloom_Taxonomy( $taxonomy, $plural, $single, $post_types );
+		$taxonomy = new POM_Bloom_Taxonomy( $taxonomy, $plural, $single, $post_types, $args );
 
 		return $taxonomy;
 	}
