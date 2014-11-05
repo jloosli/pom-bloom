@@ -1,8 +1,8 @@
 {
-	"name": "wordpress-plugin-template",
-	"title": "WordPress Plugin Template",
+	"name": "pom-bloom",
+	"title": "POM Bloom",
 	"version": "1.0.0",
-	"homepage": "https://github.com/hlashbrooke/WordPress-Plugin-Template",
+	"homepage": "https://github.com/jloosli/pom-bloom",
 	"main": "Gruntfile.js",
 	"devDependencies": {
 		"grunt": "~0.4.5",
