@@ -130,7 +130,7 @@ class POM_Bloom_Settings {
 
 		$settings['standard'] = array(
 			'title'					=> __( 'Settings', 'pom-bloom' ),
-			'description'			=> __( 'These are fairly standard form input fields.', 'pom-bloom' ),
+			'description'			=> __( 'Use the shortcode <code>[bloom-program]</code> to place Bloom on a page.', 'pom-bloom' ),
 			'fields'				=> array(
 				array(
 					'id' 			=> 'sales_page',
@@ -141,11 +141,11 @@ class POM_Bloom_Settings {
 					'options' => []
 				),
 				array(
-					'id' 			=> 'wishlist_level',
-					'label'			=> __( 'Wishlist Level' , 'pom-bloom' ),
-					'description'	=> __( 'Select the Wishlist Level associated with Bloom', 'pom-bloom' ),
+					'id' 			=> 'membership_level',
+					'label'			=> __( 'Membership Level' , 'pom-bloom' ),
+					'description'	=> __( 'Select the Membership Level associated with Bloom', 'pom-bloom' ),
 					'type'			=> 'select',
-					'default'		=> get_option($this->base.'wishlist_level'),
+					'default'		=> get_option($this->base.'membership_level'),
 					'options' => $this->getWishlistLevels()
 				),
 			)
