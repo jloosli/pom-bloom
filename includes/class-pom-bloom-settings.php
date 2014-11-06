@@ -39,7 +39,7 @@ class POM_Bloom_Settings {
 	public function __construct ( $parent ) {
 		$this->parent = $parent;
 
-		$this->base = 'wpt_';
+		$this->base = 'bloom_';
 
 		// Initialise settings
 		add_action( 'init', array( $this, 'init_settings' ), 11 );
@@ -135,141 +135,19 @@ class POM_Bloom_Settings {
 				array(
 					'id' 			=> 'sales_page',
 					'label'			=> __( 'Bloom Sales Page' , 'pom-bloom' ),
-					'description'	=> __( 'Select the Blom Sales Page', 'pom-bloom' ),
-					'type'			=> 'select',
-					'default'		=> '',
+					'description'	=> __( 'Select the Bloom Sales Page to send the user to if they aren&rsquo;t subscribed.', 'pom-bloom' ),
+					'type'			=> 'page_dropdown',
+					'default'		=> get_option($this->base.'sales_page'),
 					'options' => []
 				),
 				array(
-					'id' 			=> 'password_field',
-					'label'			=> __( 'A Password' , 'pom-bloom' ),
-					'description'	=> __( 'This is a standard password field.', 'pom-bloom' ),
-					'type'			=> 'password',
-					'default'		=> '',
-					'placeholder'	=> __( 'Placeholder text', 'pom-bloom' )
-				),
-				array(
-					'id' 			=> 'secret_text_field',
-					'label'			=> __( 'Some Secret Text' , 'pom-bloom' ),
-					'description'	=> __( 'This is a secret text field - any data saved here will not be displayed after the page has reloaded, but it will be saved.', 'pom-bloom' ),
-					'type'			=> 'text_secret',
-					'default'		=> '',
-					'placeholder'	=> __( 'Placeholder text', 'pom-bloom' )
-				),
-				array(
-					'id' 			=> 'text_block',
-					'label'			=> __( 'A Text Block' , 'pom-bloom' ),
-					'description'	=> __( 'This is a standard text area.', 'pom-bloom' ),
-					'type'			=> 'textarea',
-					'default'		=> '',
-					'placeholder'	=> __( 'Placeholder text for this textarea', 'pom-bloom' )
-				),
-				array(
-					'id' 			=> 'single_checkbox',
-					'label'			=> __( 'An Option', 'pom-bloom' ),
-					'description'	=> __( 'A standard checkbox - if you save this option as checked then it will store the option as \'on\', otherwise it will be an empty string.', 'pom-bloom' ),
-					'type'			=> 'checkbox',
-					'default'		=> ''
-				),
-				array(
-					'id' 			=> 'select_box',
-					'label'			=> __( 'A Select Box', 'pom-bloom' ),
-					'description'	=> __( 'A standard select box.', 'pom-bloom' ),
+					'id' 			=> 'wishlist_level',
+					'label'			=> __( 'Wishlist Level' , 'pom-bloom' ),
+					'description'	=> __( 'Select the Wishlist Level associated with Bloom', 'pom-bloom' ),
 					'type'			=> 'select',
-					'options'		=> array( 'drupal' => 'Drupal', 'joomla' => 'Joomla', 'wordpress' => 'WordPress' ),
-					'default'		=> 'wordpress'
+					'default'		=> get_option($this->base.'wishlist_level'),
+					'options' => $this->getWishlistLevels()
 				),
-				array(
-					'id' 			=> 'radio_buttons',
-					'label'			=> __( 'Some Options', 'pom-bloom' ),
-					'description'	=> __( 'A standard set of radio buttons.', 'pom-bloom' ),
-					'type'			=> 'radio',
-					'options'		=> array( 'superman' => 'Superman', 'batman' => 'Batman', 'ironman' => 'Iron Man' ),
-					'default'		=> 'batman'
-				),
-				array(
-					'id' 			=> 'multiple_checkboxes',
-					'label'			=> __( 'Some Items', 'pom-bloom' ),
-					'description'	=> __( 'You can select multiple items and they will be stored as an array.', 'pom-bloom' ),
-					'type'			=> 'checkbox_multi',
-					'options'		=> array( 'square' => 'Square', 'circle' => 'Circle', 'rectangle' => 'Rectangle', 'triangle' => 'Triangle' ),
-					'default'		=> array( 'circle', 'triangle' )
-				)
-			)
-		);
-
-		$settings['goals'] = array(
-			'title'					=> __( 'Goals', 'pom-bloom' ),
-			'description'			=> __( 'Manage standard Bloom Goals', 'pom-bloom' ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'number_field',
-					'label'			=> __( 'A Number' , 'pom-bloom' ),
-					'description'	=> __( 'This is a standard number field - if this field contains anything other than numbers then the form will not be submitted.', 'pom-bloom' ),
-					'type'			=> 'number',
-					'default'		=> '',
-					'placeholder'	=> __( '42', 'pom-bloom' )
-				),
-				array(
-					'id' 			=> 'colour_picker',
-					'label'			=> __( 'Pick a colour', 'pom-bloom' ),
-					'description'	=> __( 'This uses WordPress\' built-in colour picker - the option is stored as the colour\'s hex code.', 'pom-bloom' ),
-					'type'			=> 'color',
-					'default'		=> '#21759B'
-				),
-				array(
-					'id' 			=> 'an_image',
-					'label'			=> __( 'An Image' , 'pom-bloom' ),
-					'description'	=> __( 'This will upload an image to your media library and store the attachment ID in the option field. Once you have uploaded an imge the thumbnail will display above these buttons.', 'pom-bloom' ),
-					'type'			=> 'image',
-					'default'		=> '',
-					'placeholder'	=> ''
-				),
-				array(
-					'id' 			=> 'multi_select_box',
-					'label'			=> __( 'A Multi-Select Box', 'pom-bloom' ),
-					'description'	=> __( 'A standard multi-select box - the saved data is stored as an array.', 'pom-bloom' ),
-					'type'			=> 'select_multi',
-					'options'		=> array( 'linux' => 'Linux', 'mac' => 'Mac', 'windows' => 'Windows' ),
-					'default'		=> array( 'linux' )
-				)
-			)
-		);
-		$settings['categories'] = array(
-			'title'					=> __( 'Categories', 'pom-bloom' ),
-			'description'			=> __( 'Manage Goal Categories', 'pom-bloom' ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'number_field',
-					'label'			=> __( 'A Number' , 'pom-bloom' ),
-					'description'	=> __( 'This is a standard number field - if this field contains anything other than numbers then the form will not be submitted.', 'pom-bloom' ),
-					'type'			=> 'number',
-					'default'		=> '',
-					'placeholder'	=> __( '42', 'pom-bloom' )
-				),
-				array(
-					'id' 			=> 'colour_picker',
-					'label'			=> __( 'Pick a colour', 'pom-bloom' ),
-					'description'	=> __( 'This uses WordPress\' built-in colour picker - the option is stored as the colour\'s hex code.', 'pom-bloom' ),
-					'type'			=> 'color',
-					'default'		=> '#21759B'
-				),
-				array(
-					'id' 			=> 'an_image',
-					'label'			=> __( 'An Image' , 'pom-bloom' ),
-					'description'	=> __( 'This will upload an image to your media library and store the attachment ID in the option field. Once you have uploaded an imge the thumbnail will display above these buttons.', 'pom-bloom' ),
-					'type'			=> 'image',
-					'default'		=> '',
-					'placeholder'	=> ''
-				),
-				array(
-					'id' 			=> 'multi_select_box',
-					'label'			=> __( 'A Multi-Select Box', 'pom-bloom' ),
-					'description'	=> __( 'A standard multi-select box - the saved data is stored as an array.', 'pom-bloom' ),
-					'type'			=> 'select_multi',
-					'options'		=> array( 'linux' => 'Linux', 'mac' => 'Mac', 'windows' => 'Windows' ),
-					'default'		=> array( 'linux' )
-				)
 			)
 		);
 
@@ -277,6 +155,18 @@ class POM_Bloom_Settings {
 
 		return $settings;
 	}
+
+	private function getWishlistLevels() {
+		$levels = [];
+		if(function_exists('wlmapi_get_levels')) {
+			$raw_levels = wlmapi_get_levels();
+			foreach ( $raw_levels['levels']['level'] as $l ) {
+				$levels[$l['id']] = $l['name'];
+			}
+		}
+		return $levels;
+	}
+
 
 	/**
 	 * Register plugin settings

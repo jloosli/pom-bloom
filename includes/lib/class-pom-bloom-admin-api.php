@@ -136,6 +136,7 @@ class POM_Bloom_Admin_API {
 					$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $k ) . '">' . $v . '</option>';
 				}
 				$html .= '</select> ';
+				$html .= '<br>';
 			break;
 
 			case 'select_multi':
@@ -168,6 +169,17 @@ class POM_Bloom_Admin_API {
 			    </div>
 			    <?php
 			break;
+
+			case 'page_dropdown':
+				$html .= wp_dropdown_pages(array(
+					'echo' => 0,
+					'selected' => $field['default'],
+					'id'=>$option_name,
+					'name'=>$option_name,
+					'show_option_none'=> '-- None --',
+					'option_none_value' => ''
+				));
+				$html .= "<br>";
 
 		}
 
