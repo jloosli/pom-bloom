@@ -113,7 +113,16 @@ class POM_Bloom {
 		$this->load_plugin_textdomain();
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );
 
-		// Add New Post Type
+		// Load Custom Post types and taxonomies
+		$this->set_data_structures();
+
+	} // End __construct ()
+
+	/**
+	 * Load custom post types and taxonomies
+	 * @return void
+	 */
+	public function set_data_structures() {
 		$this->register_post_type(
 			'bloom-assessments',
 			'Bloom Assessment Questions',
@@ -124,21 +133,22 @@ class POM_Bloom {
 				'publicly_queryable' => false,
 				'exclude_from_search' => true,
 				'show_ui' => true,
-				'show_in_menu' => 'pom_bloom_settings',
+				'show_in_menu' => 'pom_bloom_main_settings',
 				'show_in_nav_menus' => false,
 				'query_var' => false,
 				'can_export' => true,
 				'rewrite' => false,
-				'capability_type' => 'post',
+				'capability_type' => 'page',
 				'has_archive' => false,
 				'hierarchical' => false,
 				'supports' => array( 'title' ),
 				'menu_position' => 5,
 				'menu_icon' => 'dashicons-admin-post',
+				'taxonomies' => array('bloom-categories')
 			)
 		);
 		$this->register_post_type(
-			'bloom-goals',
+			'bloom-goals-suggestions',
 			'Bloom Suggested Goals',
 			'Bloom Suggested Goal',
 			'Suggested Goals',
@@ -147,25 +157,45 @@ class POM_Bloom {
 				'publicly_queryable' => false,
 				'exclude_from_search' => true,
 				'show_ui' => true,
-				'show_in_menu' => 'pom_bloom_settings',
+				'show_in_menu' => 'pom_bloom_main_settings',
 				'show_in_nav_menus' => false,
 				'query_var' => false,
 				'can_export' => true,
 				'rewrite' => false,
-				'capability_type' => 'post',
+				'capability_type' => 'page',
 				'has_archive' => false,
 				'hierarchical' => false,
 				'supports' => array( 'title' ),
-				'menu_position' => 20,
-				'menu_icon' => 'dashicons-admin-post',
+				'taxonomies' => array('bloom-categories')
 			)
-
+		);
+		$this->register_post_type(
+			'bloom-user-goals',
+			__('Bloom User Goals', 'pom-bloom'),
+			__('Bloom User Goal', 'pom-bloom'),
+			__('Weekly Bloom Goals', 'pom-bloom'),
+			array(
+				'public' => false,
+				'publicly_queryable' => false,
+				'exclude_from_search' => true,
+				'show_ui' => true,
+				'show_in_menu' => 'pom_bloom_main_settings',
+				'show_in_nav_menus' => false,
+				'query_var' => false,
+				'can_export' => true,
+				'rewrite' => false,
+				'capability_type' => 'page',
+				'has_archive' => false,
+				'hierarchical' => false,
+				'supports' => array( 'title', 'author' ),
+				'taxonomies' => array('bloom-categories', 'bloom-goalset')
+			)
 		);
 		$this->register_taxonomy(
 			'bloom-categories',
 			__('Bloom Categories', 'pom-bloom'),
 			__('Bloom Category', 'pom-bloom'),
-			array('bloom-assessments','bloom-goals'),
+			array('bloom-assessments','bloom-user-goals'),
 			array(
 				'hierarchical' => true,
 				'public' => false,
@@ -180,7 +210,15 @@ class POM_Bloom {
 				'sort' => '',
 			)
 		);
-	} // End __construct ()
+		$this->register_taxonomy(
+			"bloom-goalset",
+			__('Bloom Goalsets', 'pom-bloom'),
+			__('Bloom Goalset', 'pom-bloom'),
+			array('bloom-user-goals')
+		);
+
+
+	}
 
 	/**
 	 * Wrapper function to register a new post type

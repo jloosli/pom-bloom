@@ -72,18 +72,18 @@ class POM_Bloom_Settings {
 			__( 'Bloom', 'pom-bloom' ) ,
 			__( 'Bloom', 'pom-bloom' ) ,
 			'manage_options' ,
-			$this->parent->_token . '_settings'
+			$this->parent->_token . '_main_settings'
 		);
 		add_submenu_page(
-			$this->parent->_token . '_settings',
+			$this->parent->_token . '_main_settings',
 			__('Bloom Settings', 'pom-bloom'),
 			__('Settings', 'pom_bloom'),
 			'manage_options',
-			$this->parent->_token . '_settings' ,
+			$this->parent->_token . '_main_settings' ,
 			array($this,'settings_page')
 			);
 		add_submenu_page(
-			$this->parent->_token. '_settings',
+			$this->parent->_token. '_main_settings',
 			__('Bloom Categories', 'pom-bloom'),
 			__('Categories', 'pom-bloom'),
 			'manage_options',
