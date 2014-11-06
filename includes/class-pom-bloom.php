@@ -115,6 +115,7 @@ class POM_Bloom {
 
 		// Load Custom Post types and taxonomies
 		$this->set_data_structures();
+		$this->program = new POM_Bloom_Program($this);
 
 	} // End __construct ()
 
@@ -273,7 +274,7 @@ class POM_Bloom {
 	 */
 	public function enqueue_scripts () {
 		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
-		wp_enqueue_script( $this->_token . '-frontend' );
+//		wp_enqueue_script( $this->_token . '-frontend' );
 	} // End enqueue_scripts ()
 
 	/**
@@ -284,7 +285,7 @@ class POM_Bloom {
 	 */
 	public function admin_enqueue_styles ( $hook = '' ) {
 		wp_register_style( $this->_token . '-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-admin' );
+//		wp_enqueue_style( $this->_token . '-admin' );
 	} // End admin_enqueue_styles ()
 
 	/**

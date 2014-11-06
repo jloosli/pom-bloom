@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 // Load plugin class files
 require_once( 'includes/class-pom-bloom.php' );
 require_once( 'includes/class-pom-bloom-settings.php' );
+require_once( 'includes/class-pom-bloom-program.php' );
 
 // Load plugin libraries
 require_once( 'includes/lib/class-pom-bloom-admin-api.php' );
