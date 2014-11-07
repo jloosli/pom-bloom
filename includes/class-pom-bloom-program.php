@@ -42,83 +42,112 @@ class POM_Bloom_Program {
      */
     protected $pvars;
 
-    public function __construct($parent) {
+    /**
+     * Number of weeks to show in overview
+     * @var int
+     */
+    protected $weeks_to_show;
+
+    public function __construct( $parent ) {
         $this->parent = $parent;
         $this->setup();
 
-        add_shortcode('bloom-program',array($this,'bloom_shortcode_func'));
+        add_shortcode( 'bloom-program', array( $this, 'bloom_shortcode_func' ) );
+        add_action( 'wp_ajax_pom_bloom', array( $this, 'ajax_callback' ) );
     }
 
-    public function bloom_shortcode_func(  ) {
+    public function bloom_shortcode_func() {
         $this->enqueue_stuff();
 
-        if(!is_user_logged_in()) {
-            return sprintf($this->msg_not_logged_in);
+        if ( !is_user_logged_in() ) {
+            return sprintf( $this->msg_not_logged_in );
         }
-        if(!$this->check_access()) {
-            return sprintf($this->msg_not_subscribed, get_page_link(get_option($this->parent->settings->base.'sales_page')));
+        if ( !$this->check_access() ) {
+            return sprintf( $this->msg_not_subscribed, get_page_link( get_option( $this->parent->settings->base . 'sales_page' ) ) );
         }
 
         $route = $this->getRoute();
-        $html = $this->page($route);
+        $html  = $this->page( $route );
 
         return $html;
     }
 
+    public function ajax_callback() {
+        $result = '';
+        switch ( $_POST['route'] ) {
+            case 'preferences':
+                update_user_meta( $_POST['user'], $this->parent->_token . 'preference_level', $_POST['preference'] );
+                $result = array( 'success' => true );
+                break;
+        }
+        die( json_encode( $result ) );
+    }
+
     protected function getRoute() {
-        if(empty($_GET) || empty($_GET['page'])) {
-            $route = array_filter($this->routes, function($route) {
-                return isset($route['default']) && $route['default'] === true;
-            });
+        if ( empty( $_GET ) || empty( $_GET['page'] ) ) {
+            $route = array_filter( $this->routes, function ( $route ) {
+                return isset( $route['default'] ) && $route['default'] === true;
+            } );
         } else {
-            $route = array_filter($this->routes, function($route) {
-                return $route['page'] === strtolower($_GET['page']);
-            });
-            if (!$route) {
-                $route = [['page' => 'bad']];
+            $route = array_filter( $this->routes, function ( $route ) {
+                return $route['page'] === strtolower( $_GET['page'] );
+            } );
+            if ( !$route ) {
+                $route = [ [ 'page' => 'bad' ] ];
             }
         }
 
-        return end($route);
+        return end( $route );
 
     }
 
-    protected function page($route) {
+    protected function page( $route ) {
         $html = "<div id='bloom'>\n";
-        $html .= $this->get_partial('nav',['active'=>'preferences']);
+        $html .= $this->get_partial( 'nav', [ 'active' => 'preferences' ] );
+        $html .= $this->get_partial( $route['template'], $route['vars']() );
         $html .= "</div>";
-        $html .= $this->get_partial($route['template'], $route['vars']());
-        return $html."You've made it this far.\n";
+
+        return $html . "You've made it this far.\n";
     }
 
     protected function enqueue_stuff() {
         // Enqueue scripts and css here.
         wp_enqueue_script( $this->parent->_token . '-frontend' );
+        wp_localize_script(
+            $this->parent->_token . '-frontend',
+            'POM_BLOOM',
+            array(
+                'ajax_url'     => admin_url( 'admin-ajax.php' ),
+                'current_user' => get_current_user_id()
+            )
+        );
     }
 
     protected function check_access() {
-        return current_user_can("manage_options") ||
+        return current_user_can( "manage_options" ) ||
                wlmapi_is_user_a_member(
-                   get_option($this->parent->settings->base.'membership_level'),
+                   get_option( $this->parent->settings->base . 'membership_level' ),
                    get_current_user_id()
                );
     }
 
     /**
      * Get template partial
+     *
      * @param $partial
      *
      * @return string
      */
-    protected function get_partial($partial, $vars = []) {
-        $html = '';
+    protected function get_partial( $partial, $vars = [ ] ) {
+        $html       = '';
         $thePartial = $this->partial_directory . $partial . ".php";
-        if(file_exists($thePartial)) {
+        if ( file_exists( $thePartial ) ) {
             ob_start();
             include $thePartial;
             $html = ob_get_clean();
 
         }
+
         return $html;
     }
 
@@ -126,27 +155,48 @@ class POM_Bloom_Program {
         $this->msg_not_subscribed = <<<MESSAGE
 Sorry. You're not currently subscribed to this program. Please go to <a href='%s'>Bloom Program Page</a> for more information.
 MESSAGE;
-        $this->msg_not_logged_in = <<<MESSAGE
+        $this->msg_not_logged_in  = <<<MESSAGE
 Looks like you're not logged in. Please try logging in above for this program to display.
 MESSAGE;
-        $this->partial_directory = __DIR__.'/../assets/partials/';
+        $this->partial_directory  = __DIR__ . '/../assets/partials/';
+        $this->weeks_to_show      = 4;
 
-        $this->routes= [
+        $this->routes = [
             [
-                'page' => 'options',
-                'default' => true
-            ],
-            [
-                'page' => 'preferences',
-                'template' => 'preferences',
-                'vars' => function() {
+                'page'     => 'overview',
+                'template' => 'overview',
+                'default'  => true,
+                'vars'     => function () {
                     return [
-                        'current_user' => wp_get_current_user()
+                        'current_user' => wp_get_current_user(),
+                        'goalsets'     => array_slice( get_terms( 'bloom-goalsets', array(
+                                'hide_empty' => false,
+                                'orderby'    => 'name',
+                                'order'      => 'DESC'
+                            ) ),
+                            0,
+                            $this->weeks_to_show
+                        ),
+                        'categories' => get_terms('bloom-categories', array(
+                            'hide_empty' => false,
+                            'parent' => 0
+                        ))
                     ];
                 }
             ],
             [
-                'page' => 'nav',
+                'page'     => 'preferences',
+                'template' => 'preferences',
+                'vars'     => function () {
+                    return [
+                        'current_user'     => wp_get_current_user(),
+                        'preference_level' =>
+                            get_user_meta( get_current_user_id(), $this->parent->_token . 'preference_level', true )
+                    ];
+                }
+            ],
+            [
+                'page'     => 'assessment',
                 'template' => 'nav'
             ]
         ];

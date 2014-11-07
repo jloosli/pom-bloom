@@ -1,7 +1,7 @@
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) exit;
-
+DEFINE('SCRIPT_DEBUG',1);
 class POM_Bloom {
 
 	/**
@@ -212,7 +212,7 @@ class POM_Bloom {
 			)
 		);
 		$this->register_taxonomy(
-			"bloom-goalset",
+			"bloom-goalsets",
 			__('Bloom Goalsets', 'pom-bloom'),
 			__('Bloom Goalset', 'pom-bloom'),
 			array('bloom-user-goals')

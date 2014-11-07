@@ -5,5 +5,3 @@
         <li class="<?php echo $vars['active']==='preferences' ? 'active':''; ?>"><a href="#">Preferences</a></li>
     </ul>
 </nav>
-<?php
-var_dump($vars);
