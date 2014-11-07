@@ -91,4 +91,4 @@
 <p>Each week, when you get your Bloom coaching email from us on Sunday, send a Facebook post or email to your group,
     asking everyone to report their score. You could say something like this:</p>
 <p><em>&ldquo;How did Bloom go for you last week? Report your score by replying to this post/email!&rdquo;</em></p>
-<p><a href="#">READY TO PLAY</a></p>
+<p><button onclick="window.location.search=''">READY TO PLAY</button></p>
