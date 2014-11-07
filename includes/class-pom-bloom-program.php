@@ -93,7 +93,7 @@ class POM_Bloom_Program {
                 return $route['page'] === strtolower( $_GET['page'] );
             } );
             if ( !$route ) {
-                $route = [ [ 'page' => 'bad' ] ];
+                $route = [ [ 'page' => 'bad', 'template'=>'bad' ] ];
             }
         }
 
@@ -102,9 +102,14 @@ class POM_Bloom_Program {
     }
 
     protected function page( $route ) {
+        $vars = [];
+        if($route['vars'] && is_object($route['vars']) && $route['vars'] instanceof Closure) {
+            $vars = $route['vars']();
+        }
+        $template = $route['template'] ? $route['template']:$route['name'];
         $html = "<div id='bloom'>\n";
         $html .= $this->get_partial( 'nav', [ 'active' => 'preferences' ] );
-        $html .= $this->get_partial( $route['template'], $route['vars']() );
+        $html .= $this->get_partial( $template, $vars );
         $html .= "</div>";
 
         return $html;
