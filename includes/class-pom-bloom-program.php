@@ -107,7 +107,7 @@ class POM_Bloom_Program {
         $html .= $this->get_partial( $route['template'], $route['vars']() );
         $html .= "</div>";
 
-        return $html . "You've made it this far.\n";
+        return $html;
     }
 
     protected function enqueue_stuff() {
@@ -142,6 +142,7 @@ class POM_Bloom_Program {
         $html       = '';
         $thePartial = $this->partial_directory . $partial . ".php";
         if ( file_exists( $thePartial ) ) {
+            extract($vars);
             ob_start();
             include $thePartial;
             $html = ob_get_clean();
