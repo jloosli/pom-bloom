@@ -40,7 +40,7 @@
 </table>
 <h3>Available Actions</h3>
 <ul class="actions">
-    <li><a href="#">Read over the instructions for Bloom</a></li>
+    <li><a href="javascript:window.location.search='page=instructions'">Read over the instructions for Bloom</a></li>
     <li><a href="#">Print your current list of goals</a></li>
     <li><a href="#">Update your game preferences</a></li>
     <li><a href="#">Look at previously completed self assessments</a></li>
