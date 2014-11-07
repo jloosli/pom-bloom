@@ -44,4 +44,5 @@
     <li><a href="#">Print your current list of goals</a></li>
     <li><a href="#">Update your game preferences</a></li>
     <li><a href="#">Look at previously completed self assessments</a></li>
+    <li><a href="#">Set some new goals</a></li>
 </ul>

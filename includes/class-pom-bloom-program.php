@@ -197,8 +197,14 @@ MESSAGE;
                 }
             ],
             [
-                'page'     => 'assessment',
-                'template' => 'nav'
+                'page'     => 'instructions',
+                'template' => 'instructions',
+                'vars' => function() {return array();}
+            ],
+            [
+                'page' => 'serendipity-examples',
+                'template' => 'serendipity-examples',
+                'vars' => function() {return array();}
             ]
         ];
 
