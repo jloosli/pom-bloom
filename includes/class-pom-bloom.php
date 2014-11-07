@@ -142,7 +142,7 @@ class POM_Bloom {
 				'capability_type' => 'page',
 				'has_archive' => false,
 				'hierarchical' => false,
-				'supports' => array( 'title' ),
+				'supports' => array( 'title', 'slug' ),
 				'menu_position' => 5,
 				'menu_icon' => 'dashicons-admin-post',
 				'taxonomies' => array('bloom-categories')

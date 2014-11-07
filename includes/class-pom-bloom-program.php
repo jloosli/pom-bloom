@@ -93,7 +93,7 @@ class POM_Bloom_Program {
                 return $route['page'] === strtolower( $_GET['page'] );
             } );
             if ( !$route ) {
-                $route = [ [ 'page' => 'bad', 'template'=>'bad' ] ];
+                $route = [ [ 'page' => 'bad', 'template' => 'bad' ] ];
             }
         }
 
@@ -102,12 +102,12 @@ class POM_Bloom_Program {
     }
 
     protected function page( $route ) {
-        $vars = [];
-        if($route['vars'] && is_object($route['vars']) && $route['vars'] instanceof Closure) {
+        $vars = [ ];
+        if ( $route['vars'] && is_object( $route['vars'] ) && $route['vars'] instanceof Closure ) {
             $vars = $route['vars']();
         }
-        $template = $route['template'] ? $route['template']:$route['name'];
-        $html = "<div id='bloom'>\n";
+        $template = $route['template'] ? $route['template'] : $route['name'];
+        $html     = "<div id='bloom'>\n";
         $html .= $this->get_partial( 'nav', [ 'active' => 'preferences' ] );
         $html .= $this->get_partial( $template, $vars );
         $html .= "</div>";
@@ -147,7 +147,7 @@ class POM_Bloom_Program {
         $html       = '';
         $thePartial = $this->partial_directory . $partial . ".php";
         if ( file_exists( $thePartial ) ) {
-            extract($vars);
+            extract( $vars );
             ob_start();
             include $thePartial;
             $html = ob_get_clean();
@@ -155,6 +155,94 @@ class POM_Bloom_Program {
         }
 
         return $html;
+    }
+
+    protected function generate_questions() {
+//        $hierarchy = '';
+        $terms     = get_terms( 'bloom-categories',
+            array(
+                'hide_empty' => false,
+                'orderby'    => 'slug',
+                'order'      => 'ASC'
+            )
+        );
+        $hierarchy = $this->generate_hierarchy( $terms );
+
+        $formatted = $this->format_hierarchy( $hierarchy );
+
+        return $formatted;
+    }
+
+    protected function generate_hierarchy( $terms, $parent = 0 ) {
+        $h = [ ];
+        foreach ( $terms as $term ) {
+            if ( (int) $term->parent === (int) $parent ) {
+                $questions = $this->get_category_questions($term->term_id);
+
+                $h[] = [
+                        'name'      => $term->name,
+                        'questions' => $questions,
+                        'sections'   => $this->generate_hierarchy( $terms, $term->term_id )
+                ];
+            }
+        }
+
+        return $h;
+    }
+    
+    protected function format_hierarchy($hierarchy, $level = 0) {
+        $html = '';
+            foreach($hierarchy as $sect) {
+                $html .= "<fieldset class='level level_$level'>\n";
+                $html .= "<legend>{$sect['name']}</legend>\n";
+                foreach($sect['questions'] as $q) {
+                    $quest = $q->post_title;
+                    $qid = $q->ID;
+                    $html .= "<strong>$quest</strong>\n";
+                    $html .= "<input type='hidden' name='' value='x' />\n";
+                    $html .= "<table class='scale'>\n";
+                    $html .= "<tr>\n";
+                    $html .= "<th title='Help!'><label for='q_{$qid}_1'>1</label></th>\n";
+                    $html .= "<th title='Not so great'><label for='q_{$qid}_2'>2</label></th>\n";
+                    $html .= "<th title='Okay'><label for='q_{$qid}_3'>3</label></th>";
+                    $html .= "<th title='Pretty good'><label for='q_{$qid}_4'>4</label></th>\n";
+                    $html .= "<th title='Wonderful'><label for='q_{$qid}_5'>5</label></th>\n";
+                    $html .= "<th class='empty' rowspan='2'>&nbsp;</th>\n";
+                    $html .= "<th title='Not Applicable'><label for='q_{$qid}_0'>N/A</label></th>\n";
+                    $html .= "</tr>\n";
+                    $html .= "<tr>\n";
+                    $html .= "<td title='Help!'><input type='radio' name='q_{$qid}' value='1' id='q_{$qid}_1'/></td>\n";
+                    $html .= "<td title='Not so great'><input type='radio' name='q_{$qid}' value='2' id='q_{$qid}_2'/></td>\n";
+                    $html .= "<td title='Okay'><input type='radio' name='q_{$qid}' value='3' id='q_{$qid}_3'/></td>\n";
+                    $html .= "<td title='Pretty good'><input type='radio' name='q_{$qid}' value='4' id='q_{$qid}_4'/></td>\n";
+                    $html .= "<td title='Wonderful'><input type='radio' name='q_{$qid}' value='5' id='q_{$qid}_5'/></td>\n";
+                    $html .= "<td title='Not Applicable'><input type='radio' name='q_{$qid}' value='0' id='q_{$qid}_0'/></td>\n";
+                    $html .= "</tr>\n";
+                    $html .= "</table>\n";
+                }
+                if($sect['sections']) {
+                    $html .= $this->format_hierarchy($sect['sections'], $level + 1);
+                }
+                $html .="</fieldset>";
+            }
+        return $html;
+    }
+
+    protected function get_category_questions( $cat_id ) {
+        $args = [
+            'post_type' => 'bloom-assessments',
+            'orderby' => 'title',
+            'tax_query' => [ [
+                'taxonomy' => 'bloom-categories',
+                'field'    => 'term_id',
+                'terms'    => $cat_id,
+                'include_children' => false
+                ]
+            ]
+        ];
+
+        $posts = get_posts( $args );
+        return $posts;
     }
 
     protected function setup() {
@@ -183,10 +271,10 @@ MESSAGE;
                             0,
                             $this->weeks_to_show
                         ),
-                        'categories' => get_terms('bloom-categories', array(
+                        'categories'   => get_terms( 'bloom-categories', array(
                             'hide_empty' => false,
-                            'parent' => 0
-                        ))
+                            'parent'     => 0
+                        ) )
                     ];
                 }
             ],
@@ -204,12 +292,52 @@ MESSAGE;
             [
                 'page'     => 'instructions',
                 'template' => 'instructions',
-                'vars' => function() {return array();}
+                'vars'     => function () {
+                    return array();
+                }
             ],
             [
-                'page' => 'serendipity-examples',
+                'page'     => 'serendipity-examples',
                 'template' => 'serendipity-examples',
-                'vars' => function() {return array();}
+                'vars'     => function () {
+                    return array();
+                }
+            ],
+            [
+                'page'     => 'goals.set',
+                'template' => 'goals.set',
+                'vars'     => function () {
+                    return [
+                        'current_user'    => wp_get_current_user(),
+                        'current_goalset' => '2014-01-01'
+                    ];
+                }
+            ],
+            [
+                'page'     => 'assessments.create',
+                'template' => 'assessments.create',
+                'vars'     => function () {
+                    return [
+                        'current_user' => wp_get_current_user(),
+                        'questions'    => [
+                            [
+                                'section' => [
+                                    'name'      => 'First section',
+                                    'questions' => [
+                                        [ 'id' => 2, 'question' => 'Where are we going?' ]
+                                    ],
+                                    'section'   => [
+                                        'name'      => 'First.Sub',
+                                        'questions' => [
+                                            [ 'id' => 3, 'question' => 'Do you like broccoli?' ],
+                                            [ 'id' => 4, 'question' => 'Do my feet stink?' ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ];
+                }
             ]
         ];
 
