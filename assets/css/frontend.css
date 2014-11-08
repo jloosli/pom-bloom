@@ -1,0 +1,8 @@
+#bloom .missing {background-color: #e24451}
+#missing_warning {
+    display: none;
+    background-color: #e24451;
+    margin: 10px 0;
+    padding: 5px;
+    border: 2px solid #8d303b;
+}

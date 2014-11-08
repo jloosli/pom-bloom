@@ -126,6 +126,7 @@ class POM_Bloom_Program {
                 'current_user' => get_current_user_id()
             )
         );
+        wp_enqueue_script('underscore');
     }
 
     protected function check_access() {
@@ -198,8 +199,9 @@ class POM_Bloom_Program {
                 foreach($sect['questions'] as $q) {
                     $quest = $q->post_title;
                     $qid = $q->ID;
+                    $html .= "<div id='q_{$qid}_group' class='qgroup'>\n";
                     $html .= "<strong>$quest</strong>\n";
-                    $html .= "<input type='hidden' name='' value='x' />\n";
+//                    $html .= "<input type='hidden' name='q_{$qid}' value='x' />\n";
                     $html .= "<table class='scale'>\n";
                     $html .= "<tr>\n";
                     $html .= "<th title='Help!'><label for='q_{$qid}_1'>1</label></th>\n";
@@ -219,6 +221,7 @@ class POM_Bloom_Program {
                     $html .= "<td title='Not Applicable'><input type='radio' name='q_{$qid}' value='0' id='q_{$qid}_0'/></td>\n";
                     $html .= "</tr>\n";
                     $html .= "</table>\n";
+                    $html .= "</div>\n";
                 }
                 if($sect['sections']) {
                     $html .= $this->format_hierarchy($sect['sections'], $level + 1);
