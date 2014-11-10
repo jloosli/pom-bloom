@@ -34,9 +34,8 @@
         </div>
         <div class="assessments">
             <h3>Assessments</h3>
-            Here is your average for this category: <?php print_r($this->getCategoryAverages($current_user->ID, $cat['id'])); ?>
             <div class="chart_div_<?php echo $cat['id']; ?>"></div>
-            <div id="chart_div"></div>
+            <p>Here&rsquo;s where you scored yourself on your last few assessments.</p>
             <script>
                 window.theCharts = window.theCharts || {};
                 window.theCharts[<?php echo $cat['id']; ?>] = {

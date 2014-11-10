@@ -120,7 +120,7 @@ jQuery(document).ready(function ($) {
                 view.setColumns([0,1, {
                     calc: "stringify",
                     sourceColumn: 1,
-                    type: "string",
+                    type: "number",
                     role: "annotation"
                 }]);
                 var options = {
@@ -129,8 +129,14 @@ jQuery(document).ready(function ($) {
                     vAxis: {minValue: 0, maxValue: 5},
                     legend: 'none'
                 };
-                var chart = new google.visualization.ColumnChart(document.getElementsByClassName(window.theCharts[key].location)[0]);
-                chart.draw(table, options);
+                var chart_locations = document.getElementsByClassName(window.theCharts[key].location);
+
+                [].forEach.call(chart_locations,function(loc) {
+                    "use strict";
+                    var chart = new google.visualization.ColumnChart(loc);
+                    chart.draw(table, options);
+                });
+
 
             }
         }

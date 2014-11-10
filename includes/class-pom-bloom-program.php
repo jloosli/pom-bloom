@@ -466,7 +466,7 @@ MESSAGE;
                             'orderby'    => 'slug'
                         )
                     );
-                    $level          = get_user_meta( $_POST['user'], $this->parent->_token . 'preference_level' );
+                    $level          = get_user_meta( get_current_user_id(), $this->parent->_token . 'preference_level',true );
                     foreach ( $categories as $cat ) {
                         $goalCategories[] = [
                             'id'       => $cat->term_id,
