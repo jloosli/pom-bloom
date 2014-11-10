@@ -321,13 +321,33 @@ class POM_Bloom_Program {
         return $posts;
     }
 
-    protected function getAssessmentResponses($question, $assessments) {
-        return array_map(function($assessment) use ($question) {
-            return array_filter($assessment['assessment_results'], function($result) use ($question) {
+    protected function getAssessmentResponses( $question, $assessments ) {
+        return array_map( function ( $assessment ) use ( $question ) {
+            return array_filter( $assessment['assessment_results'], function ( $result ) use ( $question ) {
                 return $result['q'] === $question->ID;
-            });
-        },$assessments);
+            } );
+        }, $assessments );
     }
+
+    protected function getSubCategories( $id, $level = 0 ) {
+        $theTerms = [ ];
+        $terms    = get_terms( 'bloom-categories', array(
+            'hide_empty' => false,
+            'parent'     => $id
+        ) );
+        foreach ( $terms as $term ) {
+            $theTerms[] = [
+                'id'   => $term->term_id,
+                'name' => str_repeat( '-', $level * 2 ) . $term->name
+            ];
+
+            $subs     = $this->getSubCategories( $term->term_id, $level + 1 );
+            $theTerms = array_merge( $theTerms, $subs );
+        }
+
+        return $theTerms;
+    }
+
 
     protected function setup() {
         $this->msg_not_subscribed = <<<MESSAGE
@@ -391,9 +411,31 @@ MESSAGE;
                 'page'     => 'goals.set',
                 'template' => 'goals.set',
                 'vars'     => function () {
+                    $goalCategories = [ ];
+                    $categories     = get_terms( 'bloom-categories', array(
+                            'hide_empty' => false,
+                            'parent'     => 0,
+                            'orderby'    => 'slug'
+                        )
+                    );
+                    $level          = get_user_meta( $_POST['user'], $this->parent->_token . 'preference_level' );
+                    foreach ( $categories as $cat ) {
+                        $goalCategories[] = [
+                            'id'       => $cat->term_id,
+                            'name'     => $cat->name,
+                            'goal_num' => 1
+                        ];
+                        if ( $level === 'advanced' && $cat !== end( $categories ) ) {
+                            $copy = end( $goalCategories );
+                            $copy['goal_num'] ++;
+                            $goalCategories[] = $copy;
+                        }
+                    }
+
                     return [
                         'current_user'    => wp_get_current_user(),
-                        'current_goalset' => '2014-01-01'
+                        'current_goalset' => '2014-01-01',
+                        'categories'      => $goalCategories
                     ];
                 }
             ],
@@ -421,14 +463,19 @@ MESSAGE;
 //                    $formatted  = $this->format_questionaire_hierarchy( $hierarchy );
 
                     $assessments = get_user_meta( get_current_user_id(), $this->parent->_token . '_assessment' );
-                    $assessments = array_slice( $assessments, -4);
-                    $assessments = array_reverse($assessments);
+                    $assessments = array_slice( $assessments, - 4 );
+                    $assessments = array_reverse( $assessments );
+
                     return [
                         'meta'        => get_user_meta( get_current_user_id(), $this->parent->_token . '_assessment' ),
                         'assessments' => $assessments,
-                        'hierarchy' => $hierarchy
+                        'hierarchy'   => $hierarchy
                     ];
                 }
+            ],
+            [
+                'page'     => 'goals.update',
+                'template' => 'goals.update',
             ]
         ];
 
