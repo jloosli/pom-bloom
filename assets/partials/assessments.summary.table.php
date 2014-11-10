@@ -2,7 +2,7 @@
 
 foreach ( $hierarchy as $h ): ?>
     <tr>
-        <th class="category-level"><?php echo $h['name']; ?></th>
+        <th class="category-level level_<?php echo $level;?>"><?php echo $h['name']; ?></th>
         <?php for ( $i = 0; $i <= $assessment_total; $i ++ ): ?>
             <td>&nbsp;</td>
         <?php endfor; ?>
@@ -26,6 +26,10 @@ foreach ( $hierarchy as $h ): ?>
         <?php endforeach; ?>
     <?php endif; ?>
     <?php if(!empty($h['sections']) && $h['sections']) {
-            echo $this->get_partial('assessments.summary.table', ['assessments' => $assessments,'hierarchy'=>$h['sections']]);
+            echo $this->get_partial('assessments.summary.table', [
+                'assessments' => $assessments,
+                'hierarchy'=>$h['sections'],
+                'level' => $level + 1
+            ]);
     } ?>
 <?php endforeach; ?>
