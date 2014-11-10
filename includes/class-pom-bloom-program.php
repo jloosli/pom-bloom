@@ -348,6 +348,53 @@ class POM_Bloom_Program {
         return $theTerms;
     }
 
+    protected function getCategoryAverages($user_id, $category_id, $last = 4) {
+        $assessments = $this->getAssessments($user_id);
+        $category_terms = get_terms('bloom-categories', [
+            'hide_empty' => false,
+            'parent' => $category_id
+        ]);
+//        $categories = array_merge([$category_id],array_map(function($term) {
+//            return $term->term_id;
+//        }, $category_terms));
+        $args = [
+            'post_type' => 'bloom-assessments',
+            'tax_query' => [
+                [
+                    'taxonomy'         => 'bloom-categories',
+                    'field'            => 'term_id',
+                    'terms'            => $category_id,
+                    'include_children' => true
+                ]
+            ]
+        ];
+
+        $questions_raw = get_posts($args);
+        $questions = array_map(function($q) {
+            return $q->ID;
+        },$questions_raw);
+        $averages = [];
+        foreach($assessments as $a) {
+            $avg = [0,0];
+            foreach($a['assessment_results'] as $r) {
+                if(in_array($r['q'],$questions) and $r['rating'] > 0) {
+                    $avg[0] += $r['rating'];
+                    $avg[1]++;
+                }
+            }
+            $averages[$a['assessment_date']] = $avg[1] > 0 ? round($avg[0]/$avg[1],1) : 0;
+        }
+        return $averages;
+    }
+
+    protected function getAssessments($user_id, $number = 4) {
+        $assessments = get_user_meta( $user_id, $this->parent->_token . '_assessment' );
+        if($number) {
+            $assessments = array_slice( $assessments, - $number );
+        }
+        $assessments = array_reverse( $assessments );
+        return $assessments;
+    }
 
     protected function setup() {
         $this->msg_not_subscribed = <<<MESSAGE
@@ -462,9 +509,7 @@ MESSAGE;
                     $hierarchy  = $this->generate_hierarchy( $categories );
 //                    $formatted  = $this->format_questionaire_hierarchy( $hierarchy );
 
-                    $assessments = get_user_meta( get_current_user_id(), $this->parent->_token . '_assessment' );
-                    $assessments = array_slice( $assessments, - 4 );
-                    $assessments = array_reverse( $assessments );
+                    $assessments = $this->getAssessments(get_current_user_id());
 
                     return [
                         'meta'        => get_user_meta( get_current_user_id(), $this->parent->_token . '_assessment' ),

@@ -34,7 +34,7 @@
         </div>
         <div class="assessments">
             <h3>Assessments</h3>
-            Here is your average for this category: 4.2
+            Here is your average for this category: <?php print_r($this->getCategoryAverages($current_user->ID, $cat['id'])); ?>
         </div>
         <div class="recommendations">
             <h3>Recommendations</h3>
