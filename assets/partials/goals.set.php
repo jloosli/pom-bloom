@@ -35,6 +35,21 @@
         <div class="assessments">
             <h3>Assessments</h3>
             Here is your average for this category: <?php print_r($this->getCategoryAverages($current_user->ID, $cat['id'])); ?>
+            <div class="chart_div_<?php echo $cat['id']; ?>"></div>
+            <div id="chart_div"></div>
+            <script>
+                window.theCharts = window.theCharts || {};
+                window.theCharts[<?php echo $cat['id']; ?>] = {
+                    location: "chart_div_<?php echo $cat['id']; ?>",
+                    category: '<?php echo $cat['name']; ?>',
+                    data: [
+                        <?php foreach($this->getCategoryAverages($current_user->ID, $cat['id']) as $assessment=> $avg): ?>
+                        {assessment: '<?php echo $assessment; ?>',
+                    average: <?php echo $avg; ?>},
+                <?php endforeach; ?>
+                ]
+                };
+            </script>
         </div>
         <div class="recommendations">
             <h3>Recommendations</h3>

@@ -458,6 +458,7 @@ MESSAGE;
                 'page'     => 'goals.set',
                 'template' => 'goals.set',
                 'vars'     => function () {
+                    wp_enqueue_script('google-jsapi','https://www.google.com/jsapi');
                     $goalCategories = [ ];
                     $categories     = get_terms( 'bloom-categories', array(
                             'hide_empty' => false,
