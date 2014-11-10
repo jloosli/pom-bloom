@@ -73,11 +73,34 @@ class POM_Bloom_Program {
     }
 
     public function ajax_callback() {
-        $result = '';
+        $result = array( 'success' => false );
         switch ( $_POST['route'] ) {
             case 'preferences':
                 update_user_meta( $_POST['user'], $this->parent->_token . 'preference_level', $_POST['preference'] );
                 $result = array( 'success' => true );
+                break;
+            case 'assessments':
+                $user               = (int) $_POST['user'];
+                $average            = [ 'sum' => 0, 'count' => 0 ];
+                $assessment_results = array_map( function ( $a ) use ( &$average ) {
+                    if ( (int) $a['value'] > 0 ) {
+                        $average['sum'] += (int) $a['value'];
+                        $average['count'] ++;
+                    }
+
+                    return [
+                        'q'      => (int) str_replace( "q_", "", $a['name'] ),
+                        'rating' => (int) $a['value']
+                    ];
+                }, $_POST['assessment'] );
+
+                $result = [
+                    'assessment_date'    => date( "Y-m-d H:i:s" ),
+                    'average'            => $average['count'] > 0 ? round( $average['sum'] / $average['count'], 1 ) : 0,
+                    'assessment_results' => $assessment_results
+                ];
+                add_user_meta( $user, $this->parent->_token . '_assessment', $result );
+                $result['success'] = true;
                 break;
         }
         die( json_encode( $result ) );
@@ -126,7 +149,7 @@ class POM_Bloom_Program {
                 'current_user' => get_current_user_id()
             )
         );
-        wp_enqueue_script('underscore');
+        wp_enqueue_script( 'underscore' );
     }
 
     protected function check_access() {
@@ -158,94 +181,152 @@ class POM_Bloom_Program {
         return $html;
     }
 
-    protected function generate_questions() {
-//        $hierarchy = '';
-        $terms     = get_terms( 'bloom-categories',
+    protected function generate_categories() {
+        $terms = get_terms( 'bloom-categories',
             array(
                 'hide_empty' => false,
                 'orderby'    => 'slug',
                 'order'      => 'ASC'
             )
         );
-        $hierarchy = $this->generate_hierarchy( $terms );
 
-        $formatted = $this->format_hierarchy( $hierarchy );
-
-        return $formatted;
+        return $terms;
     }
 
     protected function generate_hierarchy( $terms, $parent = 0 ) {
         $h = [ ];
         foreach ( $terms as $term ) {
             if ( (int) $term->parent === (int) $parent ) {
-                $questions = $this->get_category_questions($term->term_id);
+                $questions = $this->get_category_questions( $term->term_id );
 
                 $h[] = [
-                        'name'      => $term->name,
-                        'questions' => $questions,
-                        'sections'   => $this->generate_hierarchy( $terms, $term->term_id )
+                    'name'      => $term->name,
+                    'questions' => $questions,
+                    'sections'  => $this->generate_hierarchy( $terms, $term->term_id )
                 ];
             }
         }
 
         return $h;
     }
-    
-    protected function format_hierarchy($hierarchy, $level = 0) {
+
+    protected function format_questionaire_hierarchy( $hierarchy, $level = 0 ) {
         $html = '';
-            foreach($hierarchy as $sect) {
-                $html .= "<fieldset class='level level_$level'>\n";
-                $html .= "<legend>{$sect['name']}</legend>\n";
-                foreach($sect['questions'] as $q) {
-                    $quest = $q->post_title;
-                    $qid = $q->ID;
-                    $html .= "<div id='q_{$qid}_group' class='qgroup'>\n";
-                    $html .= "<strong>$quest</strong>\n";
+        foreach ( $hierarchy as $sect ) {
+            $html .= "<fieldset class='level level_$level'>\n";
+            $html .= "<legend>{$sect['name']}</legend>\n";
+            foreach ( $sect['questions'] as $q ) {
+                $quest = $q->post_title;
+                $qid   = $q->ID;
+                $html .= "<div id='q_{$qid}_group' class='qgroup'>\n";
+                $html .= "<strong>$quest</strong>\n";
 //                    $html .= "<input type='hidden' name='q_{$qid}' value='x' />\n";
-                    $html .= "<table class='scale'>\n";
-                    $html .= "<tr>\n";
-                    $html .= "<th title='Help!'><label for='q_{$qid}_1'>1</label></th>\n";
-                    $html .= "<th title='Not so great'><label for='q_{$qid}_2'>2</label></th>\n";
-                    $html .= "<th title='Okay'><label for='q_{$qid}_3'>3</label></th>";
-                    $html .= "<th title='Pretty good'><label for='q_{$qid}_4'>4</label></th>\n";
-                    $html .= "<th title='Wonderful'><label for='q_{$qid}_5'>5</label></th>\n";
-                    $html .= "<th class='empty' rowspan='2'>&nbsp;</th>\n";
-                    $html .= "<th title='Not Applicable'><label for='q_{$qid}_0'>N/A</label></th>\n";
-                    $html .= "</tr>\n";
-                    $html .= "<tr>\n";
-                    $html .= "<td title='Help!'><input type='radio' name='q_{$qid}' value='1' id='q_{$qid}_1'/></td>\n";
-                    $html .= "<td title='Not so great'><input type='radio' name='q_{$qid}' value='2' id='q_{$qid}_2'/></td>\n";
-                    $html .= "<td title='Okay'><input type='radio' name='q_{$qid}' value='3' id='q_{$qid}_3'/></td>\n";
-                    $html .= "<td title='Pretty good'><input type='radio' name='q_{$qid}' value='4' id='q_{$qid}_4'/></td>\n";
-                    $html .= "<td title='Wonderful'><input type='radio' name='q_{$qid}' value='5' id='q_{$qid}_5'/></td>\n";
-                    $html .= "<td title='Not Applicable'><input type='radio' name='q_{$qid}' value='0' id='q_{$qid}_0'/></td>\n";
-                    $html .= "</tr>\n";
-                    $html .= "</table>\n";
-                    $html .= "</div>\n";
-                }
-                if($sect['sections']) {
-                    $html .= $this->format_hierarchy($sect['sections'], $level + 1);
-                }
-                $html .="</fieldset>";
+                $html .= "<table class='scale'>\n";
+                $html .= "<tr>\n";
+                $html .= "<th title='Help!'><label for='q_{$qid}_1'>1</label></th>\n";
+                $html .= "<th title='Not so great'><label for='q_{$qid}_2'>2</label></th>\n";
+                $html .= "<th title='Okay'><label for='q_{$qid}_3'>3</label></th>";
+                $html .= "<th title='Pretty good'><label for='q_{$qid}_4'>4</label></th>\n";
+                $html .= "<th title='Wonderful'><label for='q_{$qid}_5'>5</label></th>\n";
+                $html .= "<th class='empty' rowspan='2'>&nbsp;</th>\n";
+                $html .= "<th title='Not Applicable'><label for='q_{$qid}_0'>N/A</label></th>\n";
+                $html .= "</tr>\n";
+                $html .= "<tr>\n";
+                $html .= "<td title='Help!'><input type='radio' name='q_{$qid}' value='1' id='q_{$qid}_1'/></td>\n";
+                $html .= "<td title='Not so great'><input type='radio' name='q_{$qid}' value='2' id='q_{$qid}_2'/></td>\n";
+                $html .= "<td title='Okay'><input type='radio' name='q_{$qid}' value='3' id='q_{$qid}_3'/></td>\n";
+                $html .= "<td title='Pretty good'><input type='radio' name='q_{$qid}' value='4' id='q_{$qid}_4'/></td>\n";
+                $html .= "<td title='Wonderful'><input type='radio' name='q_{$qid}' value='5' id='q_{$qid}_5'/></td>\n";
+                $html .= "<td title='Not Applicable'><input type='radio' name='q_{$qid}' value='0' id='q_{$qid}_0'/></td>\n";
+                $html .= "</tr>\n";
+                $html .= "</table>\n";
+                $html .= "</div>\n";
             }
+            if ( $sect['sections'] ) {
+                $html .= $this->format_questionaire_hierarchy( $sect['sections'], $level + 1 );
+            }
+            $html .= "</fieldset>";
+        }
+
+        return $html;
+    }
+
+    protected function format_summary_hierarchy( $hierarchy, $assessments, $level = 0 ) {
+        $html = '<table class="assessment_summary">\n';
+        $html .= '<thead>\n';
+        foreach ( $hierarchy as $sect ) {
+            $html .= "<tr>\n";
+            $html .= "<th>Categories and Questions</th>\n";
+            foreach ( $assessments as $a ) {
+                $html .= sprintf( "<th>%s</th>", $a['date'] );
+            }
+            $html .= "<th>Average</th>\n";
+            $html .= "</tr>\n";
+            $html .= "</thead>\n";
+            $html .= "<tbody>\n";
+            $html .= "<fieldset class='level level_$level'>\n";
+            $html .= "<legend>{$sect['name']}</legend>\n";
+            foreach ( $sect['questions'] as $q ) {
+                $quest = $q->post_title;
+                $qid   = $q->ID;
+                $html .= "<div id='q_{$qid}_group' class='qgroup'>\n";
+                $html .= "<strong>$quest</strong>\n";
+//                    $html .= "<input type='hidden' name='q_{$qid}' value='x' />\n";
+                $html .= "<table class='scale'>\n";
+                $html .= "<tr>\n";
+                $html .= "<th title='Help!'><label for='q_{$qid}_1'>1</label></th>\n";
+                $html .= "<th title='Not so great'><label for='q_{$qid}_2'>2</label></th>\n";
+                $html .= "<th title='Okay'><label for='q_{$qid}_3'>3</label></th>";
+                $html .= "<th title='Pretty good'><label for='q_{$qid}_4'>4</label></th>\n";
+                $html .= "<th title='Wonderful'><label for='q_{$qid}_5'>5</label></th>\n";
+                $html .= "<th class='empty' rowspan='2'>&nbsp;</th>\n";
+                $html .= "<th title='Not Applicable'><label for='q_{$qid}_0'>N/A</label></th>\n";
+                $html .= "</tr>\n";
+                $html .= "<tr>\n";
+                $html .= "<td title='Help!'><input type='radio' name='q_{$qid}' value='1' id='q_{$qid}_1'/></td>\n";
+                $html .= "<td title='Not so great'><input type='radio' name='q_{$qid}' value='2' id='q_{$qid}_2'/></td>\n";
+                $html .= "<td title='Okay'><input type='radio' name='q_{$qid}' value='3' id='q_{$qid}_3'/></td>\n";
+                $html .= "<td title='Pretty good'><input type='radio' name='q_{$qid}' value='4' id='q_{$qid}_4'/></td>\n";
+                $html .= "<td title='Wonderful'><input type='radio' name='q_{$qid}' value='5' id='q_{$qid}_5'/></td>\n";
+                $html .= "<td title='Not Applicable'><input type='radio' name='q_{$qid}' value='0' id='q_{$qid}_0'/></td>\n";
+                $html .= "</tr>\n";
+                $html .= "</table>\n";
+                $html .= "</div>\n";
+            }
+            if ( $sect['sections'] ) {
+                $html .= $this->format_questionaire_hierarchy( $sect['sections'], $level + 1 );
+            }
+            $html .= "</fieldset>";
+        }
+
         return $html;
     }
 
     protected function get_category_questions( $cat_id ) {
         $args = [
             'post_type' => 'bloom-assessments',
-            'orderby' => 'title',
-            'tax_query' => [ [
-                'taxonomy' => 'bloom-categories',
-                'field'    => 'term_id',
-                'terms'    => $cat_id,
-                'include_children' => false
+            'orderby'   => 'title',
+            'tax_query' => [
+                [
+                    'taxonomy'         => 'bloom-categories',
+                    'field'            => 'term_id',
+                    'terms'            => $cat_id,
+                    'include_children' => false
                 ]
             ]
         ];
 
         $posts = get_posts( $args );
+
         return $posts;
+    }
+
+    protected function getAssessmentResponses($question, $assessments) {
+        return array_map(function($assessment) use ($question) {
+            return array_filter($assessment['assessment_results'], function($result) use ($question) {
+                return $result['q'] === $question->ID;
+            });
+        },$assessments);
     }
 
     protected function setup() {
@@ -320,25 +401,32 @@ MESSAGE;
                 'page'     => 'assessments.create',
                 'template' => 'assessments.create',
                 'vars'     => function () {
+                    $categories = $this->generate_categories();
+                    $hierarchy  = $this->generate_hierarchy( $categories );
+                    $formatted  = $this->format_questionaire_hierarchy( $hierarchy );
+
                     return [
-                        'current_user' => wp_get_current_user(),
-                        'questions'    => [
-                            [
-                                'section' => [
-                                    'name'      => 'First section',
-                                    'questions' => [
-                                        [ 'id' => 2, 'question' => 'Where are we going?' ]
-                                    ],
-                                    'section'   => [
-                                        'name'      => 'First.Sub',
-                                        'questions' => [
-                                            [ 'id' => 3, 'question' => 'Do you like broccoli?' ],
-                                            [ 'id' => 4, 'question' => 'Do my feet stink?' ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
+                        'current_user'        => wp_get_current_user(),
+                        'generated_questions' => $formatted
+
+                    ];
+                }
+            ],
+            [
+                'page'     => 'assessments',
+                'template' => 'assessments',
+                'vars'     => function () {
+                    $categories = $this->generate_categories();
+                    $hierarchy  = $this->generate_hierarchy( $categories );
+//                    $formatted  = $this->format_questionaire_hierarchy( $hierarchy );
+
+                    $assessments = get_user_meta( get_current_user_id(), $this->parent->_token . '_assessment' );
+                    $assessments = array_slice( $assessments, -4);
+                    $assessments = array_reverse($assessments);
+                    return [
+                        'meta'        => get_user_meta( get_current_user_id(), $this->parent->_token . '_assessment' ),
+                        'assessments' => $assessments,
+                        'hierarchy' => $hierarchy
                     ];
                 }
             ]

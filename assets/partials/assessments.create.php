@@ -27,7 +27,7 @@
 </div>
 <h2>New Assessment for <?php echo $current_user->user_nicename; ?></h2>
 <form class="assessment_create" method="post">
-    <?php echo $this->generate_questions(); ?>
+    <?php echo $generated_questions; ?>
     <div id="missing_warning"></div>
     <input type="submit" value="Submit Assessment" />
 </form>
