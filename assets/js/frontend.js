@@ -116,7 +116,7 @@ jQuery(document).ready(function ($) {
                     data.push([item.assessment.split(' ')[0], item.average]);
                 });
                 var table = google.visualization.arrayToDataTable(data);
-                var view = new google.visualization.DataView(table);
+                var view = new google.visualization.DataView(table); // @todo figure out why this isn't working
                 view.setColumns([0,1, {
                     calc: "stringify",
                     sourceColumn: 1,
