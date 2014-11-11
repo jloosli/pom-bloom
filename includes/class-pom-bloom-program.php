@@ -129,9 +129,9 @@ class POM_Bloom_Program {
         if ( $route['vars'] && is_object( $route['vars'] ) && $route['vars'] instanceof Closure ) {
             $vars = $route['vars']();
         }
-        $template = $route['template'] ? $route['template'] : $route['name'];
+        $template = $route['template'] ? $route['template'] : $route['page'];
         $html     = "<div id='bloom'>\n";
-        $html .= $this->get_partial( 'nav', [ 'active' => 'preferences' ] );
+        $html .= $this->get_partial( 'nav', [ 'active' => $route['page'] ] );
         $html .= $this->get_partial( $template, $vars );
         $html .= "</div>";
 
@@ -348,12 +348,12 @@ class POM_Bloom_Program {
         return $theTerms;
     }
 
-    protected function getCategoryAverages($user_id, $category_id, $last = 4) {
-        $assessments = $this->getAssessments($user_id);
-        $category_terms = get_terms('bloom-categories', [
+    protected function getCategoryAverages( $user_id, $category_id, $last = 4 ) {
+        $assessments    = $this->getAssessments( $user_id );
+        $category_terms = get_terms( 'bloom-categories', [
             'hide_empty' => false,
-            'parent' => $category_id
-        ]);
+            'parent'     => $category_id
+        ] );
 //        $categories = array_merge([$category_id],array_map(function($term) {
 //            return $term->term_id;
 //        }, $category_terms));
@@ -369,30 +369,32 @@ class POM_Bloom_Program {
             ]
         ];
 
-        $questions_raw = get_posts($args);
-        $questions = array_map(function($q) {
+        $questions_raw = get_posts( $args );
+        $questions     = array_map( function ( $q ) {
             return $q->ID;
-        },$questions_raw);
-        $averages = [];
-        foreach($assessments as $a) {
-            $avg = [0,0];
-            foreach($a['assessment_results'] as $r) {
-                if(in_array($r['q'],$questions) and $r['rating'] > 0) {
+        }, $questions_raw );
+        $averages      = [ ];
+        foreach ( $assessments as $a ) {
+            $avg = [ 0, 0 ];
+            foreach ( $a['assessment_results'] as $r ) {
+                if ( in_array( $r['q'], $questions ) and $r['rating'] > 0 ) {
                     $avg[0] += $r['rating'];
-                    $avg[1]++;
+                    $avg[1] ++;
                 }
             }
-            $averages[$a['assessment_date']] = $avg[1] > 0 ? round($avg[0]/$avg[1],1) : 0;
+            $averages[ $a['assessment_date'] ] = $avg[1] > 0 ? round( $avg[0] / $avg[1], 1 ) : 0;
         }
+
         return $averages;
     }
 
-    protected function getAssessments($user_id, $number = 4) {
+    protected function getAssessments( $user_id, $number = 4 ) {
         $assessments = get_user_meta( $user_id, $this->parent->_token . '_assessment' );
-        if($number) {
+        if ( $number ) {
             $assessments = array_slice( $assessments, - $number );
         }
         $assessments = array_reverse( $assessments );
+
         return $assessments;
     }
 
@@ -458,7 +460,7 @@ MESSAGE;
                 'page'     => 'goals.set',
                 'template' => 'goals.set',
                 'vars'     => function () {
-                    wp_enqueue_script('google-jsapi','https://www.google.com/jsapi');
+                    wp_enqueue_script( 'google-jsapi', 'https://www.google.com/jsapi' );
                     $goalCategories = [ ];
                     $categories     = get_terms( 'bloom-categories', array(
                             'hide_empty' => false,
@@ -466,7 +468,7 @@ MESSAGE;
                             'orderby'    => 'slug'
                         )
                     );
-                    $level          = get_user_meta( get_current_user_id(), $this->parent->_token . 'preference_level',true );
+                    $level          = get_user_meta( get_current_user_id(), $this->parent->_token . 'preference_level', true );
                     foreach ( $categories as $cat ) {
                         $goalCategories[] = [
                             'id'       => $cat->term_id,
@@ -510,7 +512,7 @@ MESSAGE;
                     $hierarchy  = $this->generate_hierarchy( $categories );
 //                    $formatted  = $this->format_questionaire_hierarchy( $hierarchy );
 
-                    $assessments = $this->getAssessments(get_current_user_id());
+                    $assessments = $this->getAssessments( get_current_user_id() );
 
                     return [
                         'meta'        => get_user_meta( get_current_user_id(), $this->parent->_token . '_assessment' ),
@@ -522,8 +524,161 @@ MESSAGE;
             [
                 'page'     => 'goals.update',
                 'template' => 'goals.update',
+            ],
+            [
+                'page' => 'conversion'
             ]
         ];
 
+    }
+
+    protected function getOldBloomDB() {
+        if ( empty( $this->oldBloom ) ) {
+            $this->oldBloom = new wpdb( 'root', 'root', 'powerofmoms_blm', 'localhost' );
+        }
+
+        return $this->oldBloom;
+    }
+
+    protected function removeAllPostTypes( $post_type ) {
+        $posts = get_posts( [
+            'post_type' => $post_type,
+            'posts_per_page' => -1
+        ] );
+        array_map( function ( $post ) {
+            $deleted = wp_delete_post( $post->ID, true );
+        }, $posts );
+    }
+
+    protected function removeCategories( $termType ) {
+        $terms = get_terms( $termType, [
+            'hide_empty' => false
+        ] );
+        array_map( function ( $term ) use ( $termType ) {
+            wp_delete_term( $term->term_id, $termType );
+        }, $terms );
+    }
+
+    protected function getOldBloomCategories() {
+        $oldbloom = $this->getOldBloomDB();
+        $sql      = <<<SQL
+SELECT *
+FROM `pom_gls_cats`;
+SQL;
+        $results  = $oldbloom->get_results( $sql, OBJECT );
+
+        return $results;
+    }
+
+    protected function addCategories( $categories, $parent = null ) {
+        array_map( function ( $category ) use ( $parent, $categories ) {
+            $args = ['slug' => "cat-$parent-{$category->order}" ];
+            if ( !is_null( $parent ) ) {
+                $parent_obj     = end( array_filter( $categories, function ( $cat ) use ( $parent ) {
+                    return $cat->id === $parent;
+                } ) );
+                $parent         = get_term_by( 'name', $parent_obj->category, 'bloom-categories' );
+                $args['parent'] = $parent->term_id;
+            }
+            $term = wp_insert_term( $category->category, 'bloom-categories', $args );
+            $this->addCategories($categories, $category->id);
+        }, array_filter( $categories, function ( $cat ) use ( $parent ) {
+            return $cat->parent === $parent;
+        } ) );
+    }
+
+    protected function addSuggestions() {
+        $oldbloom = $this->getOldBloomDB();
+        $sql      = <<<SQL
+SELECT *
+FROM `pom_gls_recomendations`
+LEFT JOIN `pom_gls_cats` ON `pom_gls_cats`.id = `pom_gls_recomendations`.cat_id;
+SQL;
+        $results  = $oldbloom->get_results( $sql, OBJECT );
+        $posts    = [ ];
+        foreach ( $results as $recommendation ) {
+            $theCat = end( array_filter( $this->oldCats(), function ( $catGroup ) use ( $recommendation ) {
+                return $catGroup['old']->id === $recommendation->id;
+            } ) );
+            $post   = [
+                'post_title'    => $recommendation->recommendation,
+                'post_type'     => 'bloom_suggested',
+                'post_status'   => 'publish',
+                'tax_input' => array( 'bloom-categories' =>array($theCat['new']->term_id ))
+            ];
+            if ( is_null( $theCat['new']->term_id ) ) {
+                var_dump( $recommendation );
+                die;
+            }
+            $posts[] = [
+                'post' => $post,
+                'meta' => [ 'key' => 'bloom_per_week', 'value' => $recommendation->per_week ]
+            ];
+        }
+        array_map( function ( $post ) {
+            $post_id = wp_insert_post( $post['post'] );
+            add_post_meta( $post_id, $post['meta']['key'], $post['meta']['value'] );
+        }, $posts );
+
+    }
+
+    protected function addAssessmentQuestions() {
+        $categories = $this->oldCats();
+        $oldbloom = $this->getOldBloomDB();
+        $sql = <<<SQL
+SELECT *
+FROM `pom_gls_a_quests`
+LEFT JOIN `pom_gls_cats` ON `pom_gls_cats`.id = `pom_gls_a_quests`.category_id;
+SQL;
+        $results = $oldbloom->get_results($sql, OBJECT);
+        array_map(function($q) use ($categories) {
+            $theCat = end( array_filter( $categories, function ( $catGroup ) use ( $q ) {
+                return $catGroup['old']->id === $q->category_id;
+            } ) );
+            $theCat_id = $theCat['new']->term_id;
+            $post   = [
+                'post_title'    => $q->question,
+                'post_type'     => 'bloom-assessments',
+                'post_status'   => 'publish',
+                'tax_input' => array( 'bloom-categories' =>array($theCat_id ))
+            ];
+            $post_id = wp_insert_post( $post,true );
+        }, $results);
+    }
+
+
+    /**
+     * Returns a comparison of old categories to new terms
+     * @return array
+     */
+    protected function oldCats() {
+        $oldbloom = $this->getOldBloomDB();
+        $sql      = <<<SQL
+SELECT *
+FROM `pom_gls_cats`;
+SQL;
+        $results  = $oldbloom->get_results( $sql, OBJECT );
+
+        $terms   = get_terms( 'bloom-categories',
+            array(
+                'hide_empty' => false,
+                'orderby'    => 'slug',
+                'order'      => 'ASC'
+            )
+        );
+        $matches = [ ];
+        foreach ( $terms as $term ) {
+            $matches[ $term->name ] = array(
+                'new' => $term,
+                'old' => end( array_filter( $results, function ( $cat ) use ( $term ) {
+                    return strtolower( $cat->category ) === strtolower( $term->name );
+                } ) )
+            );
+            if ( $matches[ $term->name ]['old'] === array() ) {
+                die( $term->name );
+            }
+        }
+
+        return $matches;
     }
 }

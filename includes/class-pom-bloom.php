@@ -199,7 +199,7 @@ class POM_Bloom {
             'bloom-categories',
             __( 'Bloom Categories', 'pom-bloom' ),
             __( 'Bloom Category', 'pom-bloom' ),
-            array( 'bloom-assessments', 'bloom-user-goals', 'bloom-suggested' ),
+            array( 'bloom-assessments', 'bloom-user-goals', 'bloom_suggested' ),
             array(
                 'hierarchical'          => true,
                 'public'                => false,
