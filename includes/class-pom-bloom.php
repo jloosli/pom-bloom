@@ -152,10 +152,10 @@ class POM_Bloom {
             )
         );
         $this->register_post_type(
-            'bloom-goals-suggestions',
-            'Bloom Suggested Goals',
-            'Bloom Suggested Goal',
-            'Suggested Goals',
+            'bloom_suggested',
+            __( 'Bloom Suggested Goals','pom-bloom' ),
+            __( 'Bloom Suggested Goal','pom-bloom' ),
+            __( 'Suggested Goals','pom-bloom' ),
             array(
                 'public'              => false,
                 'publicly_queryable'  => false,
@@ -199,7 +199,7 @@ class POM_Bloom {
             'bloom-categories',
             __( 'Bloom Categories', 'pom-bloom' ),
             __( 'Bloom Category', 'pom-bloom' ),
-            array( 'bloom-assessments', 'bloom-user-goals' ),
+            array( 'bloom-assessments', 'bloom-user-goals', 'bloom-suggested' ),
             array(
                 'hierarchical'          => true,
                 'public'                => false,
