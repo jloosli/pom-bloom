@@ -102,6 +102,63 @@ class POM_Bloom_Program {
                 add_user_meta( $user, $this->parent->_token . '_assessment', $result );
                 $result['success'] = true;
                 break;
+            case 'goal_suggestions':
+                $goals = get_posts([
+                    'posts_per_page' => -1,
+                    'post_type' => 'bloom_suggested',
+                    'orderby' => 'title',
+                    'order' => 'ASC',
+                    'tax_query' => array(
+                        array(
+                            'taxonomy' => 'bloom-categories',
+                            'field' => 'id',
+                            'terms' => $_POST['category_id'],
+                            'include_children' => false
+                        )
+                    )
+                ]);
+                $cleaned = array_map(function($goal) {
+                    return [
+                        'id' => $goal->ID,
+                        'suggestion' => $goal->post_title,
+                        'per_week' => (int) get_post_meta($goal->ID, 'bloom_per_week', true)
+                    ];
+                }, $goals);
+                $result = [
+                    'goals' => $cleaned,
+                    'success' => true
+                    ];
+                break;
+            case 'add_goals':
+                $opts = $_POST;
+                $data = array();
+                parse_str($opts['data'],$data);
+                $goalCount = count( $data['goals'] );
+                $goals = [];
+                for($i=0; $i< $goalCount; $i++) {
+                    $goals[] = [
+                        'suggestion_id' => $data['suggestions'][$i],
+                        'category_id' => $data['cat'][$i],
+                        'goal' => $data['goals'][$i],
+                        'per_week' => $data['per_week'][$i]
+                    ];
+                }
+                array_map(function($goal) use ($opts, $data) {
+                    $post = [
+                        'post_title' => $goal['goal'],
+                        'post_author' => $opts['user'],
+                        'tax_input' => array(
+                            'bloom-categories' =>array($goal['category_id']),
+                            'bloom-goalsets' => array($data['goalset'])
+                        ),
+                        'post_status' => 'publish',
+                        'post_type' => 'bloom-user-goals'
+                    ];
+                    $goal_id = wp_insert_post($post, true);
+                    add_post_meta($goal_id, 'per_week', $goal['per_week']);
+                    add_post_meta($goal_id, 'suggested_id', $goal['suggested_id']);
+                }, $goals);
+                $result['success'] = true;
         }
         die( json_encode( $result ) );
     }

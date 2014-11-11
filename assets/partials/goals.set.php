@@ -1,6 +1,6 @@
 <h2>Set your goals</h2>
 <div class="instructions">
-    Follow these simple steps: (click here to minimize)
+    <h3>Follow these simple steps:</h3>
 
     <ol>
         <li>In each of the main category boxes below, choose a subcategory and a list of recommended goals will pop up.
@@ -19,7 +19,8 @@
         </li>
     Start setting your goals and get ready to <strong>BLOOM!</strong>
 </div>
-<form>
+<form class="goals_set" method="post">
+    <input type="hidden" name="goalset" value="599" />
     <?php foreach($categories as $cat): ?>
     <fieldset>
         <legend>Category: {<?php echo $cat['name']; ?>} - (Goal #<?php echo $cat['goal_num']; ?>)</legend>
@@ -52,16 +53,22 @@
         </div>
         <div class="recommendations">
             <h3>Recommendations</h3>
+            <div class="results">
             Select a category from the box above to get recommendations.
+            </div>
         </div>
         <div class="goal">
             <h3>Goal</h3>
-            Click on the recommendation and it will appear here. Use it as is, edit it, or just make up your own goal.
+            <p>Click on the recommendation and it will appear here. Use it as is, edit it, or just make up your own goal.</p>
+            <input type="hidden" name="suggestions[]" value="x" />
+            <input type="hidden" name="cat[]" value="<?php echo $cat['id']; ?>" />
+            <textarea required rows="5" name="goals[]"></textarea>
+
         </div>
         <div class="per_week">
             <h3>Times per week</h3>
             Set how many times per week you want to do this goal.<br>
-            <select>
+            <select name="per_week[]">
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>

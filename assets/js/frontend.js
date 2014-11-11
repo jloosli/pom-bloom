@@ -96,6 +96,91 @@ jQuery(document).ready(function ($) {
         });
     };
 
+    // ===============================
+    // Goals.Set
+    // ===============================
+
+    $('form.goals_set', bloom).find('.subcategories select').change(function () {
+        "use strict";
+        var self = $(this);
+        var subcategory = $('option:selected', self).val();
+        $.post(
+            POM_BLOOM.ajax_url,
+            {
+                user:        POM_BLOOM.current_user,
+                category_id: subcategory,
+                route:       'goal_suggestions',
+                action:      'pom_bloom'
+            },
+            function (result) {
+                if (result && result.success) {
+                    console.log(result);
+                    var li,
+                        resultsDiv = self.parents('fieldset').find('.recommendations .results'),
+                        list = $('<ul />');
+
+                    if (!result.goals.length) {
+                        resultsDiv.text("No suggestions available for this category.");
+                        return;
+                    }
+                    $.each(result.goals, function (item, val) {
+                        li = $('<li />', {
+                            'class':         'clickable',
+                            'data-id':       val.id,
+                            'data-per_week': val.per_week,
+                            text:            val.suggestion,
+                            click:           function () {
+                                var me = $(this),
+                                    fieldset = me.parents('fieldset'),
+                                    textarea = fieldset.find('.goal textarea'),
+                                    per_week = fieldset.find('.per_week select'),
+                                    goal_id = fieldset.find('.goal input[name^="suggestions"]');
+                                me.addClass('selected').delay(2000).queue(function (next) {
+                                    me.removeClass('selected');
+                                    next();
+                                });
+                                textarea.val(me.text());
+                                goal_id.val(me.data('id'));
+                                per_week.val(me.data('per_week'));
+                                $('html, body').animate({
+                                    scrollTop: textarea.offset().top - 200
+                                }, 2000);
+
+                            }
+                        });
+                        li.appendTo(list);
+                    });
+                    resultsDiv.html(list);
+                    console.log(resultsDiv);
+                }
+            },
+            'json'
+        );
+
+    });
+
+    $('form.goals_set', bloom).submit(function (e) {
+        e.preventDefault();
+        console.log($(this).serialize());
+        $.post(
+            POM_BLOOM.ajax_url,
+            {
+                user:   POM_BLOOM.current_user,
+                data:   $(this).serialize(),
+                route:  'add_goals',
+                action: 'pom_bloom'
+            },
+            function (result) {
+                if (result && result.success) {
+                    window.location.search = "page=overview";
+                }
+            },
+            'json'
+        )
+
+    });
+
+
     if (window.location.search.indexOf('page=goals.set') && window.google) {
         google = window.google;
 
@@ -117,21 +202,21 @@ jQuery(document).ready(function ($) {
                 });
                 var table = google.visualization.arrayToDataTable(data);
                 var view = new google.visualization.DataView(table); // @todo figure out why this isn't working
-                view.setColumns([0,1, {
-                    calc: "stringify",
+                view.setColumns([0, 1, {
+                    calc:         "stringify",
                     sourceColumn: 1,
-                    type: "number",
-                    role: "annotation"
+                    type:         "number",
+                    role:         "annotation"
                 }]);
                 var options = {
-                    title: window.theCharts[key].category,
-                    hAxis: {title: 'Assessments'},
-                    vAxis: {minValue: 0, maxValue: 5},
+                    title:  window.theCharts[key].category,
+                    hAxis:  {title: 'Assessments'},
+                    vAxis:  {minValue: 0, maxValue: 5},
                     legend: 'none'
                 };
                 var chart_locations = document.getElementsByClassName(window.theCharts[key].location);
 
-                [].forEach.call(chart_locations,function(loc) {
+                [].forEach.call(chart_locations, function (loc) {
                     "use strict";
                     var chart = new google.visualization.ColumnChart(loc);
                     chart.draw(table, options);
