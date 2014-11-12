@@ -34,7 +34,7 @@
                 </td>
             <?php else:
                 $is_serendipity = false;?>
-                <th><?php echo $goal->post_title; ?></th>
+                <th><div><?php echo $goal->post_title; ?></div></th>
                 <?php foreach($dow as $day): ?>
                     <td data-day="<?php echo $day; ?>" data-goal="<?php echo $goal->ID; ?>"
                         class="day_progress clickable <?php echo empty($goal->completed[$day])?'':'set'; ?>">&nbsp;</td>
@@ -51,5 +51,3 @@
     </tbody>
 
 </table>
-<?php
-var_dump( $goals );

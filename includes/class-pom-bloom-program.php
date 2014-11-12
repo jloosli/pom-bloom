@@ -222,6 +222,8 @@ class POM_Bloom_Program {
 
     protected function enqueue_stuff() {
         // Enqueue scripts and css here.
+        wp_enqueue_script('jquery-dotdotdot');
+        wp_enqueue_script( 'underscore' );
         wp_enqueue_script( $this->parent->_token . '-frontend' );
         wp_localize_script(
             $this->parent->_token . '-frontend',
@@ -231,7 +233,6 @@ class POM_Bloom_Program {
                 'current_user' => get_current_user_id()
             )
         );
-        wp_enqueue_script( 'underscore' );
     }
 
     protected function check_access() {
@@ -606,7 +607,7 @@ MESSAGE;
                 'page'     => 'goals.update',
                 'template' => 'goals.update',
                 'vars'     => function () {
-                    wp_enqueue_script('jquery-dotdotdot');
+
                     $goalset  = $_GET['goalset'];
                     $goals    = get_posts( [
                         'posts_per_page' => - 1,

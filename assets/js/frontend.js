@@ -291,7 +291,18 @@ jQuery(document).ready(function ($) {
             'json'
         )
 
-    }, 200))
+    }, 200));
+
+
+    $('#goals_update').find('tr.goal th div').dotdotdot({
+        callback: function(isTruncated, orgContent) {
+            "use strict";
+            if(isTruncated) {
+                console.log(orgContent);
+                this.title = orgContent[0].data;
+            }
+        }
+    }).trigger('update.dot'); // Not sure why I have to push this trigger
 });
 
 // Returns a function, that, as long as it continues to be invoked, will not
