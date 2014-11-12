@@ -20,7 +20,7 @@
     Start setting your goals and get ready to <strong>BLOOM!</strong>
 </div>
 <form class="goals_set" method="post">
-    <input type="hidden" name="goalset" value="599" />
+    <input type="hidden" name="goalset" value="<?php echo $this->getLatestGoalset()->term_id; ?>" />
     <?php foreach($categories as $cat): ?>
     <fieldset>
         <legend>Category: {<?php echo $cat['name']; ?>} - (Goal #<?php echo $cat['goal_num']; ?>)</legend>

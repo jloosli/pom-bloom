@@ -1,6 +1,6 @@
 <h2>Update Goals</h2>
 <div class="instructions">
-    <p>If your goal is hidden, you can hover over the box to see the full text. When you complete an action
+    <p>If your goal is hidden, you can hover over the box or even click on it to see the full text. When you complete an action
         related to your goal, check the appropriate box. (You can "uncheck" a checked box by re-clicking it.)
         A check will appear in the "Done" column once you've checked off the number of actions you chose for that
         goal.</p>

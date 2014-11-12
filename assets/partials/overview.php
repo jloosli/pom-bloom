@@ -10,7 +10,7 @@
         <?php foreach ( $goalsets as $gs ): ?>
             <th>
                 <?php printf("<a href='%s?page=goals.update&goalset=%s'>%s</a>",
-                    str_replace("?","", $_SERVER["REQUEST_URI"]) ,
+                    explode("?",$_SERVER["REQUEST_URI"])[0] ,
                     $gs->name,
                     $gs->name); ?>
             </th>

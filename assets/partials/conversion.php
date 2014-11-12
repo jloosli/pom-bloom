@@ -11,6 +11,7 @@ if(current_user_can('activate_plugins') && !empty($_POST) && !empty($_POST['acti
     $this->removeAllPostTypes( 'bloom_suggested' );
     $this->removeAllPostTypes( 'bloom-user-goals' );
     $this->removeCategories('bloom-categories');
+    $this->removeCategories('bloom-goalsets');
 
     $categories = $this->getOldBloomCategories();
     $this->addCategories( $categories );

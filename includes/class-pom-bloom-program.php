@@ -469,7 +469,7 @@ class POM_Bloom_Program {
         wp_insert_term($goalset, 'bloom-goalsets');
     }
 
-    protected function canUserAddGoals($user_id) {
+    protected function getLatestGoalset() {
         $latest = get_terms( 'bloom-goalsets', array(
                 'hide_empty' => false,
                 'orderby'    => 'name',
@@ -477,13 +477,19 @@ class POM_Bloom_Program {
                 'number' => 1
             )
         );
+        return $latest[0];
+    }
+
+
+    protected function canUserAddGoals($user_id) {
+        $latest = $this->getLatestGoalset();
         $posts = get_posts([
             'author'=> $user_id,
             'post_type' => 'bloom-user-goals',
             'tax_query' => array(array(
                 'taxonomy' => 'bloom-goalsets',
                 'field' => 'id',
-                'terms' => array($latest[0]->term_id)
+                'terms' => array($latest->term_id)
             ))
         ]);
         return count($posts) === 0;
@@ -799,6 +805,15 @@ SQL;
             $post_id   = wp_insert_post( $post, true );
         }, $results );
     }
+
+    protected function addGoalsets() {
+
+    }
+
+    protected function addGoals() {
+
+    }
+
 
 
     /**
