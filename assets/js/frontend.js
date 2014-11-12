@@ -124,7 +124,7 @@ jQuery(document).ready(function ($) {
                         return;
                     }
                     $.each(result.goals, function (item, val) {
-                        li = $('<li />', {
+                        li = $('<li />').append($('<div></div>', {
                             'class':         'clickable',
                             'data-id':       val.id,
                             'data-per_week': val.per_week,
@@ -147,7 +147,7 @@ jQuery(document).ready(function ($) {
                                 }, 2000);
 
                             }
-                        });
+                        }));
                         li.appendTo(list);
                     });
                     resultsDiv.html(list);
