@@ -214,6 +214,7 @@ class POM_Bloom_Program {
         $html     = "<div id='bloom'>\n";
         $html .= $this->get_partial( 'nav', [ 'active' => $route['page'] ] );
         $html .= $this->get_partial( $template, $vars );
+        $html .= $this->get_partial( 'footer', [] );
         $html .= "</div>";
 
         return $html;
@@ -591,7 +592,6 @@ MESSAGE;
                 'vars'     => function () {
                     $categories = $this->generate_categories();
                     $hierarchy  = $this->generate_hierarchy( $categories );
-//                    $formatted  = $this->format_questionaire_hierarchy( $hierarchy );
 
                     $assessments = $this->getAssessments( get_current_user_id() );
 
@@ -606,6 +606,7 @@ MESSAGE;
                 'page'     => 'goals.update',
                 'template' => 'goals.update',
                 'vars'     => function () {
+                    wp_enqueue_script('jquery-dotdotdot');
                     $goalset  = $_GET['goalset'];
                     $goals    = get_posts( [
                         'posts_per_page' => - 1,

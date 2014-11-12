@@ -21,7 +21,7 @@
     </thead>
     <tbody>
     <?php foreach ( $goals as $goal ): ?>
-        <tr>
+        <tr class="goal">
             <?php if ( is_null( $goal->category ) ) :
                 $is_serendipity = true; ?>
                 <th><label for="serendipity_<?php echo $goal->ID; ?>">Serendipity Moment</label></th>
