@@ -176,7 +176,7 @@ jQuery(document).ready(function ($) {
                 }
             },
             'json'
-        )
+        );
 
     });
 
@@ -226,5 +226,90 @@ jQuery(document).ready(function ($) {
             }
         }
     }
+
+    // ==========================
+    // Goals Update
+    // ==========================
+
+    $('#goals_update .clickable', bloom).click(function() {
+        "use strict";
+        var self = $(this),
+            is_set = self.hasClass('set'),
+            done_cell =self.siblings('.done'),
+            per_week = done_cell.data('per_week'),
+            total_set = 0;
+
+        $.post(
+            POM_BLOOM.ajax_url,
+            {
+                user:   POM_BLOOM.current_user,
+                set:   !is_set,
+                goal:   self.data('goal'),
+                day: self.data('day'),
+                route:  'update_goals',
+                action: 'pom_bloom'
+            },
+            function (result) {
+                if (result && result.success) {
+                    self.removeClass('set');
+                    done_cell.removeClass('set');
+                    total_set = self.siblings('.set').length;
+                    if(result.set) {
+                        self.addClass('set');
+                        total_set += 1;
+                    }
+                    if(total_set >= per_week) {
+                        done_cell.addClass('set');
+                    }
+                }
+            },
+            'json'
+        )
+    });
+
+    var serendipity = $('#goals_update .serendipity', bloom);
+    serendipity.on('change keyup paste', debounce(function() {
+        "use strict";
+        var self = $(this);
+        var done_cell = self.parent().siblings('.done');
+        done_cell.removeClass('set');
+        if($.trim(self.val()) !== '') {
+            done_cell.addClass('set');
+        }
+        $.post(
+            POM_BLOOM.ajax_url,
+            {
+                user:   POM_BLOOM.current_user,
+                serendipity:   self.val(),
+                id:   self.data('id'),
+                route:  'update_serendipity',
+                action: 'pom_bloom'
+            },
+            function (result) {
+
+            },
+            'json'
+        )
+
+    }, 200))
 });
+
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+}
 

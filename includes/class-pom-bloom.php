@@ -145,7 +145,7 @@ class POM_Bloom {
                 'capability_type'     => 'page',
                 'has_archive'         => false,
                 'hierarchical'        => false,
-                'supports'            => array( 'title', 'slug' ),
+                'supports'            => array( 'title', 'slug'),
                 'menu_position'       => 5,
                 'menu_icon'           => 'dashicons-admin-post',
                 'taxonomies'          => array( 'bloom-categories' )
@@ -169,7 +169,7 @@ class POM_Bloom {
                 'capability_type'     => 'page',
                 'has_archive'         => false,
                 'hierarchical'        => false,
-                'supports'            => array( 'title' ),
+                'supports'            => array( 'title', 'custom-fields' ),
                 'taxonomies'          => array( 'bloom-categories' )
             )
         );
@@ -191,7 +191,7 @@ class POM_Bloom {
                 'capability_type'     => 'page',
                 'has_archive'         => false,
                 'hierarchical'        => false,
-                'supports'            => array( 'title', 'author' ),
+                'supports'            => array( 'title', 'author', 'custom-fields' ),
                 'taxonomies'          => array( 'bloom-categories', 'bloom-goalset' )
             )
         );
