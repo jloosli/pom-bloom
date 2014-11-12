@@ -54,7 +54,28 @@ class POM_Bloom_Program {
 
         add_shortcode( 'bloom-program', array( $this, 'bloom_shortcode_func' ) );
         add_action( 'wp_ajax_pom_bloom', array( $this, 'ajax_callback' ) );
+        add_action('wp', array($this,'setup_cron'));
     }
+
+    function setup_cron() {
+        if(!(wp_next_scheduled('bloom_create_goalset_event'))) {
+            wp_schedule_event(time(), 'daily', 'bloom_create_goalset_event');
+        }
+        add_action('bloom_create_goalset_event', array($this,'bloom_create_goalset'));
+    }
+
+    function deactive_cron() {
+        wp_clear_scheduled_hook('bloom_create_goalset');
+    }
+
+
+    function bloom_create_goalset() {
+        $dow = 0; // Sunday
+        if(date('w') === $dow) {
+            $this->addGoalset(date('Y-m-d', strtotime('next Monday')));
+        }
+    }
+
 
     public function bloom_shortcode_func() {
         $this->enqueue_stuff();
@@ -345,57 +366,6 @@ class POM_Bloom_Program {
         return $html;
     }
 
-    protected function format_summary_hierarchy( $hierarchy, $assessments, $level = 0 ) {
-        $html = '<table class="assessment_summary">\n';
-        $html .= '<thead>\n';
-        foreach ( $hierarchy as $sect ) {
-            $html .= "<tr>\n";
-            $html .= "<th>Categories and Questions</th>\n";
-            foreach ( $assessments as $a ) {
-                $html .= sprintf( "<th>%s</th>", $a['date'] );
-            }
-            $html .= "<th>Average</th>\n";
-            $html .= "</tr>\n";
-            $html .= "</thead>\n";
-            $html .= "<tbody>\n";
-            $html .= "<fieldset class='level level_$level'>\n";
-            $html .= "<legend>{$sect['name']}</legend>\n";
-            foreach ( $sect['questions'] as $q ) {
-                $quest = $q->post_title;
-                $qid   = $q->ID;
-                $html .= "<div id='q_{$qid}_group' class='qgroup'>\n";
-                $html .= "<strong>$quest</strong>\n";
-//                    $html .= "<input type='hidden' name='q_{$qid}' value='x' />\n";
-                $html .= "<table class='scale'>\n";
-                $html .= "<tr>\n";
-                $html .= "<th title='Help!'><label for='q_{$qid}_1'>1</label></th>\n";
-                $html .= "<th title='Not so great'><label for='q_{$qid}_2'>2</label></th>\n";
-                $html .= "<th title='Okay'><label for='q_{$qid}_3'>3</label></th>";
-                $html .= "<th title='Pretty good'><label for='q_{$qid}_4'>4</label></th>\n";
-                $html .= "<th title='Wonderful'><label for='q_{$qid}_5'>5</label></th>\n";
-                $html .= "<th class='empty' rowspan='2'>&nbsp;</th>\n";
-                $html .= "<th title='Not Applicable'><label for='q_{$qid}_0'>N/A</label></th>\n";
-                $html .= "</tr>\n";
-                $html .= "<tr>\n";
-                $html .= "<td title='Help!'><input type='radio' name='q_{$qid}' value='1' id='q_{$qid}_1'/></td>\n";
-                $html .= "<td title='Not so great'><input type='radio' name='q_{$qid}' value='2' id='q_{$qid}_2'/></td>\n";
-                $html .= "<td title='Okay'><input type='radio' name='q_{$qid}' value='3' id='q_{$qid}_3'/></td>\n";
-                $html .= "<td title='Pretty good'><input type='radio' name='q_{$qid}' value='4' id='q_{$qid}_4'/></td>\n";
-                $html .= "<td title='Wonderful'><input type='radio' name='q_{$qid}' value='5' id='q_{$qid}_5'/></td>\n";
-                $html .= "<td title='Not Applicable'><input type='radio' name='q_{$qid}' value='0' id='q_{$qid}_0'/></td>\n";
-                $html .= "</tr>\n";
-                $html .= "</table>\n";
-                $html .= "</div>\n";
-            }
-            if ( $sect['sections'] ) {
-                $html .= $this->format_questionaire_hierarchy( $sect['sections'], $level + 1 );
-            }
-            $html .= "</fieldset>";
-        }
-
-        return $html;
-    }
-
     protected function get_category_questions( $cat_id ) {
         $args = [
             'post_type' => 'bloom-assessments',
@@ -490,6 +460,33 @@ class POM_Bloom_Program {
         $assessments = array_reverse( $assessments );
 
         return $assessments;
+    }
+
+    public function addGoalset($goalset = null) {
+        if(empty($goalset)) {
+            $goalset = date("Y-m-d");
+        }
+        wp_insert_term($goalset, 'bloom-goalsets');
+    }
+
+    protected function canUserAddGoals($user_id) {
+        $latest = get_terms( 'bloom-goalsets', array(
+                'hide_empty' => false,
+                'orderby'    => 'name',
+                'order'      => 'DESC',
+                'number' => 1
+            )
+        );
+        $posts = get_posts([
+            'author'=> $user_id,
+            'post_type' => 'bloom-user-goals',
+            'tax_query' => array(array(
+                'taxonomy' => 'bloom-goalsets',
+                'field' => 'id',
+                'terms' => array($latest[0]->term_id)
+            ))
+        ]);
+        return count($posts) === 0;
     }
 
     protected function setup() {

@@ -98,6 +98,7 @@ class POM_Bloom {
         $this->script_suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
         register_activation_hook( $this->file, array( $this, 'install' ) );
+        register_deactivation_hook($this->file, array($this, 'uninstall'));
 
         // Load frontend JS & CSS
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
@@ -381,6 +382,11 @@ class POM_Bloom {
     public function install() {
         $this->_log_version_number();
     } // End install ()
+
+    public function uninstall() {
+        wp_clear_scheduled_hook('bloom_create_goalset');
+    }
+
 
     /**
      * Log the plugin version number.

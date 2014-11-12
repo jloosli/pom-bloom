@@ -364,7 +364,6 @@
 
     function collapseGoal(node) {
         "use strict";
-        debugger;
         node.style.height = '';
         jQuery(node).trigger('update');
     }
