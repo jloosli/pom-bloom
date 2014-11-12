@@ -70,7 +70,6 @@
 <h3>Available Actions</h3>
 <ul class="actions">
     <li><a href="javascript:window.location.search='page=instructions'">Read over the instructions for Bloom</a></li>
-    <li><a href="javascript:window.location.search='page=goals.print'">Print your current list of goals</a></li>
     <li><a href="javascript:window.location.search='page=preferences'">Update your game preferences</a></li>
     <li><a href="javascript:window.location.search='page=assessments'">Look at previously completed self assessments</a></li>
     <li><a href="javascript:window.location.search='page=goals.set'">Set some new goals</a></li>
