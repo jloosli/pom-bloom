@@ -294,11 +294,22 @@ jQuery(document).ready(function ($) {
     }, 200));
 
 
-    $('#goals_update').find('tr.goal th div').dotdotdot({
+    $('#goals_update').find('tr.goal th div').click(function(){
+        "use strict";
+        var self = $(this),
+            isTruncated = self.triggerHandler("isTruncated");
+        if(isTruncated) {
+            this.style.height = '1000px';
+            self.trigger('update');
+            this.style.height = 'auto';
+        } else {
+            this.style.height = '';
+        }
+        self.trigger('update');
+    }).dotdotdot({
         callback: function(isTruncated, orgContent) {
             "use strict";
             if(isTruncated) {
-                console.log(orgContent);
                 this.title = orgContent[0].data;
             }
         }

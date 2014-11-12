@@ -177,11 +177,22 @@ class POM_Bloom_Program {
                 break;
             case 'update_goals':
                 $opts = $_POST;
+                $completed = get_post_meta($opts['goal'],'completed', true);
+                if(empty($completed)) {
+                    $completed = [];
+                }
+                $completed[$opts['day']] = $opts['set'] === 'true';
+                update_post_meta($opts['goal'],'completed',$completed);
                 $result['success'] = true;
                 $result['set'] = $opts['set'] === 'true';
                 break;
             case 'update_serendipity':
-                $result['post'] = $_POST;
+                $args = [
+                    'ID' => $_POST['id'],
+                    'post_title' => $_POST['serendipity']
+                ];
+                $update = wp_update_post($args);
+                $result['success'] = true;
                 break;
         }
         die( json_encode( $result ) );
