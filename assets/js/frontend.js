@@ -314,7 +314,31 @@ jQuery(document).ready(function ($) {
             }
         }
     }).trigger('update.dot'); // Not sure why I have to push this trigger
+
+    if(window.location.search.indexOf('goals.update') !== -1){
+        $('body').children().addClass('doNotPrint');
+        showItem($('#bloom'));
+    }
+
 });
+
+function showItem($node) {
+    // remove the 'hide' class. This is moot
+    // until we loop to the top level node, at
+    // which point this takes affect
+    $node.removeClass('doNotPrint');
+    // we don't want to print the siblings
+    // so we will hide those
+    $node.siblings().addClass('doNotPrint')
+    // now we check to see if this item has a parent
+    // and, if so...
+    if($node.parent().length){
+        // ...we want to show the parent, hide its
+        // siblings, and then continue this process
+        // back to the top of the node tree
+        showItem($node.parent());
+    }
+}
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for

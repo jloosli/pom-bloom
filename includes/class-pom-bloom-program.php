@@ -176,22 +176,22 @@ class POM_Bloom_Program {
                 $result['success'] = true;
                 break;
             case 'update_goals':
-                $opts = $_POST;
-                $completed = get_post_meta($opts['goal'],'completed', true);
-                if(empty($completed)) {
-                    $completed = [];
+                $opts      = $_POST;
+                $completed = get_post_meta( $opts['goal'], 'completed', true );
+                if ( empty( $completed ) ) {
+                    $completed = [ ];
                 }
-                $completed[$opts['day']] = $opts['set'] === 'true';
-                update_post_meta($opts['goal'],'completed',$completed);
+                $completed[ $opts['day'] ] = $opts['set'] === 'true';
+                update_post_meta( $opts['goal'], 'completed', $completed );
                 $result['success'] = true;
-                $result['set'] = $opts['set'] === 'true';
+                $result['set']     = $opts['set'] === 'true';
                 break;
             case 'update_serendipity':
-                $args = [
-                    'ID' => $_POST['id'],
+                $args              = [
+                    'ID'         => $_POST['id'],
                     'post_title' => $_POST['serendipity']
                 ];
-                $update = wp_update_post($args);
+                $update            = wp_update_post( $args );
                 $result['success'] = true;
                 break;
         }
@@ -225,7 +225,7 @@ class POM_Bloom_Program {
         $html     = "<div id='bloom'>\n";
         $html .= $this->get_partial( 'nav', [ 'active' => $route['page'] ] );
         $html .= $this->get_partial( $template, $vars );
-        $html .= $this->get_partial( 'footer', [] );
+        $html .= $this->get_partial( 'footer', [ ] );
         $html .= "</div>";
 
         return $html;
@@ -233,7 +233,7 @@ class POM_Bloom_Program {
 
     protected function enqueue_stuff() {
         // Enqueue scripts and css here.
-        wp_enqueue_script('jquery-dotdotdot');
+        wp_enqueue_script( 'jquery-dotdotdot' );
         wp_enqueue_script( 'underscore' );
         wp_enqueue_script( $this->parent->_token . '-frontend' );
         wp_localize_script(
@@ -508,16 +508,48 @@ MESSAGE;
                 'template' => 'overview',
                 'default'  => true,
                 'vars'     => function () {
+                    $goalsets = array_slice( get_terms( 'bloom-goalsets', array(
+                            'hide_empty' => false,
+                            'orderby'    => 'name',
+                            'order'      => 'DESC'
+                        ) ),
+                        0,
+                        $this->weeks_to_show
+                    );
+                    $terms    = array_map( function ( $set ) {
+                        return $set->term_id;
+                    }, $goalsets );
+                    $goals    = get_posts( [
+                        'post_type'      => 'bloom-user-goals',
+                        'author'         => get_current_user_id(),
+                        'posts_per_page' => - 1,
+                        'tax_query'      => array(
+                            array(
+                                'taxonomy' => 'bloom-goalsets',
+                                'field'    => 'id',
+                                'terms'    => $terms
+                            )
+                        )
+
+                    ] );
+
+                    $grouped = [ ];
+                    array_map( function ( $goal ) use ( &$grouped ) {
+                        $goal->category     = wp_get_post_terms( $goal->ID, 'bloom-categories', [ 'fields' => 'all' ] )[0];
+                        $goal->goalset      = wp_get_post_terms( $goal->ID, 'bloom-goalsets', [ 'fields' => 'all' ] )[0];
+                        $goal->completed    = get_post_meta( $goal->ID, 'completed', true );
+                        $goal->per_week     = get_post_meta( $goal->ID, 'per_week', true );
+                        $goal->is_completed = is_null( $goal->category ) ? // Serendipity if null
+                            strlen( $goal->post_title ) > 0
+                            : array_sum( $goal->completed ) >= $goal->per_week;
+
+                        $grouped[ $goal->goalset->name ][ $goal->category->name ? $goal->category->name : 'serendipity' ][] = $goal;
+                    }, $goals );
+
                     return [
                         'current_user' => wp_get_current_user(),
-                        'goalsets'     => array_slice( get_terms( 'bloom-goalsets', array(
-                                'hide_empty' => false,
-                                'orderby'    => 'name',
-                                'order'      => 'DESC'
-                            ) ),
-                            0,
-                            $this->weeks_to_show
-                        ),
+                        'goalsets'     => $goalsets,
+                        'goals'        => $grouped,
                         'categories'   => get_terms( 'bloom-categories', array(
                             'hide_empty' => false,
                             'parent'     => 0

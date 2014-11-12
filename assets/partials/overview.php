@@ -6,35 +6,64 @@
     <thead>
     <tr>
         <th>Category</th>
+
         <?php foreach ( $goalsets as $gs ): ?>
-            <th><?php echo $gs->name; ?></th>
+            <th>
+                <?php printf("<a href='%s?page=goals.update&goalset=%s'>%s</a>",
+                    str_replace("?","", $_SERVER["REQUEST_URI"]) ,
+                    $gs->name,
+                    $gs->name); ?>
+            </th>
         <?php endforeach; ?>
         <th>Total</th>
     </tr>
     </thead>
     <tbody>
-    <?php foreach ( $categories as $cat ): ?>
+    <?php $total_gs = []; foreach ( $categories as $cat ):  ?>
         <tr>
             <th><?php echo $cat->name; ?></th>
-            <?php foreach($goalsets as $gs): ?>
-            <td>x</td>
+            <?php  $total = 0; foreach($goalsets as $gs): $total_gs[$gs->name] = 0;?>
+            <td><?php
+                    foreach($goals[$gs->name][$cat->name] as $goal) {
+                        printf("<img title = '%s' src='%s' /> ",
+                            $goal->post_title,
+                            $this->parent->assets_url.'/images/' .
+                            ($goal->is_completed ? 'accept' : 'cross') .
+                                                             '.png'
+                        );
+
+                        $total += $goal->is_completed;
+                        $total_gs[$gs->name] += $goal->is_completed;
+
+                        } ?>
+                </td>
             <?php endforeach; ?>
-            <th>2</th>
+            <th><?php echo $total; ?></th>
         </tr>
     <?php endforeach; ?>
     <tr>
         <th>Serendipity</th>
-        <?php foreach($goalsets as $gs): ?>
-            <td>x</td>
+        <?php $total=0; foreach($goalsets as $gs): ?>
+            <td><?php
+                foreach($goals[$gs->name]['serendipity'] as $goal) {
+                    printf( "<img src='%s' /> ",
+                        $this->parent->assets_url . '/images/' .
+                        ( $goal->is_completed ? 'accept' : 'cross' ) .
+                        '.png'
+                    );
+                    $total += $goal->is_completed;
+                    $total_gs[$gs->name] += $goal->is_completed;
+                } ?>
+            </td>
         <?php endforeach; ?>
-        <th>2</th>
+        <th><?php echo $total; ?></th>
     </tr>
     <tr>
         <th>Totals</th>
         <?php foreach($goalsets as $gs): ?>
-            <th>x</th>
+            <th><?php echo $total_gs[$gs->name]; ?></th>
         <?php endforeach; ?>
-        <th>2</th>
+        <th><?php echo array_sum($total_gs); ?></th>
     </tr>
     </tbody>
 </table>
