@@ -54,25 +54,25 @@ class POM_Bloom_Program {
 
         add_shortcode( 'bloom-program', array( $this, 'bloom_shortcode_func' ) );
         add_action( 'wp_ajax_pom_bloom', array( $this, 'ajax_callback' ) );
-        add_action('wp', array($this,'setup_cron'));
+        add_action( 'wp', array( $this, 'setup_cron' ) );
     }
 
     function setup_cron() {
-        if(!(wp_next_scheduled('bloom_create_goalset_event'))) {
-            wp_schedule_event(time(), 'daily', 'bloom_create_goalset_event');
+        if ( !( wp_next_scheduled( 'bloom_create_goalset_event' ) ) ) {
+            wp_schedule_event( time(), 'daily', 'bloom_create_goalset_event' );
         }
-        add_action('bloom_create_goalset_event', array($this,'bloom_create_goalset'));
+        add_action( 'bloom_create_goalset_event', array( $this, 'bloom_create_goalset' ) );
     }
 
     function deactive_cron() {
-        wp_clear_scheduled_hook('bloom_create_goalset');
+        wp_clear_scheduled_hook( 'bloom_create_goalset' );
     }
 
 
     function bloom_create_goalset() {
         $dow = 0; // Sunday
-        if(date('w') === $dow) {
-            $this->addGoalset(date('Y-m-d', strtotime('next Monday')));
+        if ( date( 'w' ) === $dow ) {
+            $this->addGoalset( date( 'Y-m-d', strtotime( 'next Monday' ) ) );
         }
     }
 
@@ -462,11 +462,11 @@ class POM_Bloom_Program {
         return $assessments;
     }
 
-    public function addGoalset($goalset = null) {
-        if(empty($goalset)) {
-            $goalset = date("Y-m-d");
+    public function addGoalset( $goalset = null ) {
+        if ( empty( $goalset ) ) {
+            $goalset = date( "Y-m-d" );
         }
-        wp_insert_term($goalset, 'bloom-goalsets');
+        wp_insert_term( $goalset, 'bloom-goalsets' );
     }
 
     protected function getLatestGoalset() {
@@ -474,25 +474,29 @@ class POM_Bloom_Program {
                 'hide_empty' => false,
                 'orderby'    => 'name',
                 'order'      => 'DESC',
-                'number' => 1
+                'number'     => 1
             )
         );
+
         return $latest[0];
     }
 
 
-    protected function canUserAddGoals($user_id) {
+    protected function canUserAddGoals( $user_id ) {
         $latest = $this->getLatestGoalset();
-        $posts = get_posts([
-            'author'=> $user_id,
+        $posts  = get_posts( [
+            'author'    => $user_id,
             'post_type' => 'bloom-user-goals',
-            'tax_query' => array(array(
-                'taxonomy' => 'bloom-goalsets',
-                'field' => 'id',
-                'terms' => array($latest->term_id)
-            ))
-        ]);
-        return count($posts) === 0;
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'bloom-goalsets',
+                    'field'    => 'id',
+                    'terms'    => array( $latest->term_id )
+                )
+            )
+        ] );
+
+        return count( $posts ) === 0;
     }
 
     protected function setup() {
@@ -807,13 +811,101 @@ SQL;
     }
 
     protected function addGoalsets() {
+        $oldbloom = $this->getOldBloomDB();
+        $sql      = <<<SQL
+SELECT *
+FROM `pom_gls_goalsets`;
+SQL;
+        $results  = $oldbloom->get_results( $sql, OBJECT );
+        array_map( function ( $set ) {
+            wp_insert_term( $set->date, 'bloom-goalsets' );
+        }, $results );
+    }
 
+    protected function addAssessments() {
+        $oldbloom  = $this->getOldBloomDB();
+        $sql       = <<<SQL
+SELECT * FROM `pom_gls_a_user`
+LEFT JOIN pom_gls_a_quests ON pom_gls_a_user.quest_id = pom_gls_a_quests.id
+ORDER BY `user_id`;
+SQL;
+        $results   = $oldbloom->get_results( $sql, OBJECT );
+        $organized = [ ];
+        array_map( function ( $q ) use ( &$organized ) {
+            $organized[ $q->user_id ][ $q->timestamp ][ $q->question ] = $q->response;
+        }, $results );
+
+        foreach ( $organized as $user_id => $assessments ) {
+            foreach ( $assessments as $assessment => $questions ) {
+                $a       = [ ];
+                $average = [ 'sum' => 0, 'count' => 0 ];
+                foreach ( $questions as $question => $response ) {
+                    $theQuestion = get_page_by_title( $question, OBJECT, 'bloom-assessments' );
+                    $a[]         = [
+                        'q'      => $theQuestion->ID,
+                        'rating' => $response
+                    ];
+                    if ( (int) $response > 0 ) {
+                        $average['sum'] += (int) $response;
+                        $average['count'] ++;
+                    }
+                }
+                $new_assessment = [
+                    'assessment_date'    => $assessment,
+                    'average'            => $average['count'] > 0 ? round( $average['sum'] / $average['count'], 1 ) : 0,
+                    'assessment_results' => $a
+                ];
+                add_user_meta( $user_id, $this->parent->_token . '_assessment', $new_assessment );
+            }
+
+        }
     }
 
     protected function addGoals() {
+        $oldbloom      = $this->getOldBloomDB();
+        $sql           = <<<SQL
+SELECT *
+FROM `pom_gls_goals`
+LEFT JOIN pom_gls_cats on pom_gls_cats.id = pom_gls_goals.cat_id;
+SQL;
+        $results       = $oldbloom->get_results( $sql, OBJECT );
+        array_map( function ( $goal )  {
+            $taxonomies['bloom-goalsets'] = array( $goal->goalset );
+            if ( (int) $goal->rec_id !== - 1 ) {
+                $args = [
+                    'name__like' => $goal->category,
+                    'hide_empty' => false
+                ];
+                $theCat = get_terms('bloom-categories', $args);
+                $taxonomies['bloom-categories'] = array( $theCat[0]->term_id );
+            }
+
+
+            $args = [
+                'post_title'  => $goal->goal,
+                'post_author' => $goal->user_id,
+                'post_status' => 'publish',
+                'post_type'   => 'bloom-user-goals',
+                'tax_input'   => $taxonomies
+            ];
+            $item = wp_insert_post( $args );
+            add_post_meta( $item, 'bloom-per-week', $goal->per_week );
+            $completed = array(
+                'mon' => $goal->set_mon === "1",
+                'tue' => $goal->set_tue === "1",
+                'wed' => $goal->set_wed === "1",
+                'thu' => $goal->set_thu === "1",
+                'fri' => $goal->set_fri === "1",
+                'sat' => $goal->set_sat === "1",
+                'sun' => $goal->set_sun === "1",
+            );
+            add_post_meta( $item, 'completed', $completed );
+            if ( (int) $goal->rec_id !== - 1 ) {
+                add_post_meta( $item, 'suggested_id', $goal->rec_id );
+            }
+        }, $results );
 
     }
-
 
 
     /**

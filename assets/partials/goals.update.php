@@ -49,5 +49,6 @@
         </tr>
     <?php endforeach; ?>
     </tbody>
-
 </table>
+
+<button onclick="window.location.search='';">Go Back</button>

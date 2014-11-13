@@ -17,7 +17,11 @@ if(current_user_can('activate_plugins') && !empty($_POST) && !empty($_POST['acti
     $this->addCategories( $categories );
     $this->addAssessmentQuestions();
     $this->addSuggestions();
+    $this->addAssessments();
+    $this->addGoalsets();
+    $this->addGoals();
 
+    echo "<h2>Running...</h2>";
 //$this->addPastAssessments();
 //$this->addPastGoals();
 }
