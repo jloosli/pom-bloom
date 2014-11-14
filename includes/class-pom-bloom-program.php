@@ -559,7 +559,8 @@ MESSAGE;
                         'goals'        => $grouped,
                         'categories'   => get_terms( 'bloom-categories', array(
                             'hide_empty' => false,
-                            'parent'     => 0
+                            'parent'     => 0,
+                            'orderby' => 'slug'
                         ) )
                     ];
                 }
@@ -598,7 +599,8 @@ MESSAGE;
                     $categories     = get_terms( 'bloom-categories', array(
                             'hide_empty' => false,
                             'parent'     => 0,
-                            'orderby'    => 'slug'
+                            'orderby'    => 'slug',
+                            'order' => 'ascending'
                         )
                     );
                     $level          = get_user_meta( get_current_user_id(), $this->parent->_token . 'preference_level', true );
@@ -697,7 +699,7 @@ MESSAGE;
 
     protected function getOldBloomDB() {
         if ( empty( $this->oldBloom ) ) {
-            $this->oldBloom = new wpdb( 'powerofmoms_blm', '', 'powerofmoms_blm', 'localhost' );
+            $this->oldBloom = new wpdb( 'root', 'root', 'powerofmoms_blm', 'localhost' );
         }
 
         return $this->oldBloom;
