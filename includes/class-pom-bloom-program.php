@@ -697,7 +697,7 @@ MESSAGE;
 
     protected function getOldBloomDB() {
         if ( empty( $this->oldBloom ) ) {
-            $this->oldBloom = new wpdb( 'root', 'root', 'powerofmoms_blm', 'localhost' );
+            $this->oldBloom = new wpdb( 'powerofmoms_blm', '', 'powerofmoms_blm', 'localhost' );
         }
 
         return $this->oldBloom;
