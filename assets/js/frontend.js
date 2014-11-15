@@ -2,6 +2,14 @@
     jQuery(document).ready(function ($) {
         var bloom = $('#bloom');
 
+        var instructions = bloom.find('.instructions');
+        instructions.wrapInner("<div class='ins_content'></div>")
+            .append("<div class='ins_title'><h3>Instructions</h3> <small>(Click to expand)</small></div>")
+            .click(function(event) {
+            "use strict";
+            $("div", this).toggle();
+        });
+
         // =========================
         // Preferences
         // =========================
@@ -187,13 +195,12 @@
 
             google.load('visualization', '1.0', {
                 'callback':    function () {
-                    console.log('loading');
                 }, 'packages': ['corechart']
             });
             google.setOnLoadCallback(drawCharts);
+            window.onresize = debounce(drawCharts, 200);
 
             function drawCharts() {
-                console.log('Drawing Charts');
 
                 for (var key in window.theCharts) {
                     var data = [['Assessments', 'Average']];
@@ -321,35 +328,6 @@
         if (window.location.search.indexOf('goals.update') !== -1) {
             $('body').children().addClass('doNotPrint');
             showItem($('#bloom'));
-
-            //var beforePrint = function() {
-            //    "use strict";
-            //    console.log('beforeprint');
-            //    $('#goals_update').find('tr.goal th div').each(function () {
-            //        expandGoal(this);
-            //    });
-            //};
-            //
-            //var afterPrint = function () {
-            //    "use strict";
-            //    console.log('afterprint');
-            //    $('#goals_update').find('tr.goal th div').each(function () {
-            //        collapseGoal(this);
-            //    });
-            //};
-            //if (window.matchMedia) {
-            //    var mediaQueryList = window.matchMedia('print');
-            //    mediaQueryList.addListener(function(mql) {
-            //        if (mql.matches) {
-            //            beforePrint();
-            //        } else {
-            //            afterPrint();
-            //        }
-            //    });
-            //}
-            //
-            //window.onbeforeprint = beforePrint;
-            //window.onafterprint = afterPrint;
         }
 
     });
