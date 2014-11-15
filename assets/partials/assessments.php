@@ -16,7 +16,7 @@
     <tr>
         <th>Categories and Questions</th>
         <?php foreach ( $assessments as $a ): ?>
-            <th><?php echo date("m/d/y",strtotime($a['assessment_date'])); ?></th>
+            <th><?php echo date("M j",strtotime($a['assessment_date'])); ?></th>
         <?php endforeach; ?>
         <th>Average</th>
     </tr>
@@ -34,3 +34,4 @@
     </tbody>
 </table>
 
+<button onclick="window.location.search=''">Back</button>

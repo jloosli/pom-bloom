@@ -347,12 +347,12 @@ class POM_Bloom_Program {
                 $html .= "<th title='Not Applicable'><label for='q_{$qid}_0'>N/A</label></th>\n";
                 $html .= "</tr>\n";
                 $html .= "<tr>\n";
-                $html .= "<td title='Help!'><input type='radio' name='q_{$qid}' value='1' id='q_{$qid}_1'/></td>\n";
-                $html .= "<td title='Not so great'><input type='radio' name='q_{$qid}' value='2' id='q_{$qid}_2'/></td>\n";
-                $html .= "<td title='Okay'><input type='radio' name='q_{$qid}' value='3' id='q_{$qid}_3'/></td>\n";
-                $html .= "<td title='Pretty good'><input type='radio' name='q_{$qid}' value='4' id='q_{$qid}_4'/></td>\n";
-                $html .= "<td title='Wonderful'><input type='radio' name='q_{$qid}' value='5' id='q_{$qid}_5'/></td>\n";
-                $html .= "<td title='Not Applicable'><input type='radio' name='q_{$qid}' value='0' id='q_{$qid}_0'/></td>\n";
+                $html .= "<th title='Help!'><input type='radio' name='q_{$qid}' value='1' id='q_{$qid}_1'/></th>\n";
+                $html .= "<th title='Not so great'><input type='radio' name='q_{$qid}' value='2' id='q_{$qid}_2'/></th>\n";
+                $html .= "<th title='Okay'><input type='radio' name='q_{$qid}' value='3' id='q_{$qid}_3'/></th>\n";
+                $html .= "<th title='Pretty good'><input type='radio' name='q_{$qid}' value='4' id='q_{$qid}_4'/></th>\n";
+                $html .= "<th title='Wonderful'><input type='radio' name='q_{$qid}' value='5' id='q_{$qid}_5'/></th>\n";
+                $html .= "<th title='Not Applicable'><input type='radio' name='q_{$qid}' value='0' id='q_{$qid}_0'/></th>\n";
                 $html .= "</tr>\n";
                 $html .= "</table>\n";
                 $html .= "</div>\n";

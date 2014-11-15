@@ -1,18 +1,39 @@
 #bloom {
+  @level_0: #90c74a;
+  @level_1: #10ACD5;
+  @level_2: #F2CC0C;
+  @media screen and (min-width: 964px) {
+    nav ul li {
+      display: inline-block;
+      a {
+        background:      #11A9D7;
+        border-left:     10px solid #90c74a;
+        margin-right:    10px;
+        padding:         10px 20px;
+        color:           white;
+        text-decoration: none;
+        &:hover {
+          background-color:  #1095c1;
+          border-left-color: #81b445;
+        }
+      }
+    }
+  }
+
   .instructions {
     background: #c3c0c6;
-    padding: 15px;
-    border: 4px solid #726f75;
-    margin: 20px 0;
+    padding:    15px;
+    border:     4px solid #726f75;
+    margin:     20px 0;
     .ins_content {
       display: none;
     }
     .ins_title {
-      display: block;
+      display:    block;
       text-align: center;
       h3 {
         margin: 0;
-        color: black;
+        color:  black;
 
       }
 
@@ -20,16 +41,18 @@
   }
   h3 {
     font-weight: bold;
-    color: #90c74a;
+    color:       @level_0;
   }
 
-  .missing {background-color: #e24451}
+  .missing {
+    background-color: #e24451
+  }
   #missing_warning {
-    display: none;
+    display:          none;
     background-color: #e24451;
-    margin: 10px 0;
-    padding: 5px;
-    border: 2px solid #8d303b;
+    margin:           10px 0;
+    padding:          5px;
+    border:           2px solid #8d303b;
   }
   .set {
     background: url('../images/accept.png') no-repeat center center;
@@ -54,27 +77,83 @@
 
   th {
     border-top:  1px solid #ddd;
-    text-align: center;
+    text-align:  center;
     font-weight: bold;
   }
+  table.assessment_results {
+    th, td {
+      border:  1px solid #ddd;
+      padding: 5px;
+    }
+    tbody {
+      th, td {
+        text-align: left;
+        &.level_1 {
+          padding-left: 10px;
+        }
+        &.level_2 {
+          padding-left: 20px;
+        }
+      }
+      td {
+        color: black;
+      }
+    }
+  }
+  h1,h2,h3,th {
+    &.level_0 {
+      color: @level_0;
+    }
+
+    &.level_1 {
+      color: @level_1;
+    }
+
+    &.level_2 {
+      color: @level_2;
+    }
+
+  }
+  .level_0 legend {
+    background: @level_0;
+  }
+  .level_1 legend {
+    background: @level_1;
+  }
+  .level_2 legend {
+    background: @level_2;
+  }
+
+  legend {
+    color: white;
+    padding: 3px;
+  }
+  fieldset {
+    margin: 5px 0;
+  }
+
+
   input[type="submit"] {
     margin: 20px 0;
   }
   @media screen and (min-width: 800px) {
     .subcategories {
-      width: 50%;
-      float: left;
+      width:         50%;
+      float:         left;
       padding-right: 10px;
     }
+
     .assessments {
-      width: 50%;
-      float: left;
+      width:        50%;
+      float:        left;
       padding-left: 10px;
     }
   }
 }
 
 @media print {
-  .doNotPrint {display: none;}
+  .doNotPrint {
+    display: none;
+  }
 }
 
