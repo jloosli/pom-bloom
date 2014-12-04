@@ -1,6 +1,6 @@
 <?php
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {exit;}
 
 class POM_Bloom_Settings {
 
@@ -113,8 +113,10 @@ class POM_Bloom_Settings {
 
 	/**
 	 * Add settings link to plugin list table
-	 * @param  array $links Existing links
-	 * @return array 		Modified links
+	 *
+*@param  array $links Existing links
+	 *
+*@return array 		Modified links
 	 */
 	public function add_settings_link ( $links ) {
 		$settings_link = '<a href="options-general.php?page=' . $this->parent->_token . '_settings">' . __( 'Settings', 'pom-bloom' ) . '</a>';
@@ -138,7 +140,7 @@ class POM_Bloom_Settings {
 					'description'	=> __( 'Select the Bloom Sales Page to send the user to if they aren&rsquo;t subscribed.', 'pom-bloom' ),
 					'type'			=> 'page_dropdown',
 					'default'		=> get_option($this->base.'sales_page'),
-					'options' => []
+					'options' => array()
 				),
 				array(
 					'id' 			=> 'membership_level',
@@ -187,7 +189,7 @@ class POM_Bloom_Settings {
 
 			foreach ( $this->settings as $section => $data ) {
 
-				if ( $current_section && $current_section != $section ) continue;
+				if ( $current_section && $current_section != $section ) {continue;}
 
 				// Add section to page
 				add_settings_section( $section, $data['title'], array( $this, 'settings_section' ), $this->parent->_token . '_settings' );
@@ -208,7 +210,7 @@ class POM_Bloom_Settings {
 					add_settings_field( $field['id'], $field['label'], array( $this->parent->admin, 'display_field' ), $this->parent->_token . '_settings', $section, array( 'field' => $field, 'prefix' => $this->base ) );
 				}
 
-				if ( ! $current_section ) break;
+				if ( ! $current_section ) {break;}
 			}
 		}
 	}
@@ -293,7 +295,10 @@ class POM_Bloom_Settings {
 	 *
 	 * @since 1.0.0
 	 * @static
-	 * @see POM_Bloom()
+	 * @see   POM_Bloom()
+	 *
+	 * @param $parent
+	 *
 	 * @return Main POM_Bloom_Settings instance
 	 */
 	public static function instance ( $parent ) {

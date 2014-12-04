@@ -269,9 +269,11 @@ class POM_Bloom_Program {
 
     protected function check_access() {
         return current_user_can( "manage_options" ) ||
-               wlmapi_is_user_a_member(
-                   get_option( $this->parent->settings->base . 'membership_level' ),
-                   get_current_user_id()
+               ( function_exists( 'wlmapi_is_user_a_member' ) &&
+                 wlmapi_is_user_a_member(
+                     get_option( $this->parent->settings->base . 'membership_level' ),
+                     get_current_user_id()
+                 )
                );
     }
 
@@ -560,7 +562,7 @@ MESSAGE;
                         'categories'   => get_terms( 'bloom-categories', array(
                             'hide_empty' => false,
                             'parent'     => 0,
-                            'orderby' => 'slug'
+                            'orderby'    => 'slug'
                         ) )
                     ];
                 }
@@ -600,7 +602,7 @@ MESSAGE;
                             'hide_empty' => false,
                             'parent'     => 0,
                             'orderby'    => 'slug',
-                            'order' => 'ascending'
+                            'order'      => 'ascending'
                         )
                     );
                     $level          = get_user_meta( get_current_user_id(), $this->parent->_token . 'preference_level', true );
@@ -864,21 +866,21 @@ SQL;
     }
 
     protected function addGoals() {
-        $oldbloom      = $this->getOldBloomDB();
-        $sql           = <<<SQL
+        $oldbloom = $this->getOldBloomDB();
+        $sql      = <<<SQL
 SELECT *
 FROM `pom_gls_goals`
-LEFT JOIN pom_gls_cats on pom_gls_cats.id = pom_gls_goals.cat_id;
+LEFT JOIN pom_gls_cats ON pom_gls_cats.id = pom_gls_goals.cat_id;
 SQL;
-        $results       = $oldbloom->get_results( $sql, OBJECT );
-        array_map( function ( $goal )  {
+        $results  = $oldbloom->get_results( $sql, OBJECT );
+        array_map( function ( $goal ) {
             $taxonomies['bloom-goalsets'] = array( $goal->goalset );
             if ( (int) $goal->rec_id !== - 1 ) {
-                $args = [
+                $args                           = [
                     'name__like' => $goal->category,
                     'hide_empty' => false
                 ];
-                $theCat = get_terms('bloom-categories', $args);
+                $theCat                         = get_terms( 'bloom-categories', $args );
                 $taxonomies['bloom-categories'] = array( $theCat[0]->term_id );
             }
 
