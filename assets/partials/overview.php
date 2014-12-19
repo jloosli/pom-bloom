@@ -25,7 +25,7 @@
             <th><?php echo $cat->name; ?></th>
             <?php $total = 0;
             foreach ( $goalsets as $gs ): $total_gs[ $gs->name ] = 0; ?>
-                <td><?php
+                <th><?php
                     if ( !empty( $goals ) && !empty($goals[ $gs->name ][ $cat->name ]) ) {
                         foreach ( $goals[ $gs->name ][ $cat->name ] as $goal ) {
                             printf( "<img title = '%s' src='%s' /> ",
@@ -41,7 +41,7 @@
 
                         }
                     } ?>
-                </td>
+                </th>
             <?php endforeach; ?>
             <th><?php echo $total; ?></th>
         </tr>
@@ -50,11 +50,11 @@
         <th>Serendipity</th>
         <?php $total = 0;
         foreach ( $goalsets as $gs ): ?>
-            <td><?php
+            <th><?php
                 if(!empty($goals) && !empty($goals[ $gs->name ]['serendipity'])) {
                     foreach ( $goals[ $gs->name ]['serendipity'] as $goal ) {
                         printf( "<img src='%s' /> ",
-                            $this->parent->assets_url . '/images/' .
+                            $this->parent->assets_url . 'images/' .
                             ( $goal->is_completed ? 'accept' : 'cross' ) .
                             '.png'
                         );
@@ -62,7 +62,7 @@
                         $total_gs[ $gs->name ] += $goal->is_completed;
                     }
                 }?>
-            </td>
+            </th>
         <?php endforeach; ?>
         <th><?php echo $total; ?></th>
     </tr>
