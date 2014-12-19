@@ -210,7 +210,7 @@ class POM_Bloom {
                 'meta_box_cb'           => null,
                 'show_admin_column'     => true,
                 'update_count_callback' => '',
-                'query_var'             => $this->taxonomy,
+                'query_var'             => 'bloom-categories',
                 'rewrite'               => false,
                 'sort'                  => '',
             )
