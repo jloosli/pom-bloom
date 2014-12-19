@@ -34,7 +34,7 @@
                     'json'
                 )
             }
-            console.log(preference);
+            //console.log(preference);
         });
         $('#pref_cancel').click(function (event) {
             "use strict";
@@ -123,7 +123,7 @@
                 },
                 function (result) {
                     if (result && result.success) {
-                        console.log(result);
+                        //console.log(result);
                         var li,
                             resultsDiv = self.parents('fieldset').find('.recommendations .results'),
                             list = $('<ul />');
@@ -160,7 +160,7 @@
                             li.appendTo(list);
                         });
                         resultsDiv.html(list);
-                        console.log(resultsDiv);
+                        //console.log(resultsDiv);
                     }
                 },
                 'json'
