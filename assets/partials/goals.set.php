@@ -23,7 +23,7 @@
     <input type="hidden" name="goalset" value="<?php echo $this->getLatestGoalset()->term_id; ?>" />
     <?php foreach($categories as $cat): ?>
     <fieldset>
-        <legend>Category: {<?php echo $cat['name']; ?>} - (Goal #<?php echo $cat['goal_num']; ?>)</legend>
+        <legend>Category: <?php echo $cat['name']; ?> - (Goal #<?php echo $cat['goal_num']; ?>)</legend>
         <div class="subcategories">
             <h3>Subcategories</h3>
                 <?php $subCategories = $this->getSubCategories( $cat['id'] ); ?>

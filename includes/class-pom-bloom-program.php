@@ -550,7 +550,7 @@ MESSAGE;
                         $goal->per_week     = get_post_meta( $goal->ID, 'per_week', true );
                         $goal->is_completed = is_null( $goal->category ) ? // Serendipity if null
                             strlen( $goal->post_title ) > 0
-                            : array_sum( $goal->completed ) >= $goal->per_week;
+                            : array_sum( (array) $goal->completed ) >= $goal->per_week;
 
                         $grouped[ $goal->goalset->name ][ $goal->category->name ? $goal->category->name : 'serendipity' ][] = $goal;
                     }, $goals );

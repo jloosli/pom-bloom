@@ -5,10 +5,10 @@
         var instructions = bloom.find('.instructions');
         instructions.wrapInner("<div class='ins_content'></div>")
             .append("<div class='ins_title'><h3>Instructions</h3> <small>(Click to expand)</small></div>")
-            .click(function(event) {
-            "use strict";
-            $("div", this).toggle();
-        });
+            .click(function (event) {
+                "use strict";
+                $("div", this).toggle();
+            });
 
         // =========================
         // Preferences
@@ -111,8 +111,16 @@
 
         $('form.goals_set', bloom).find('.subcategories select').change(function () {
             "use strict";
-            var self = $(this);
+            var self = $(this),
+                li,
+                resultsDiv = self.parents('fieldset').find('.recommendations .results'),
+                list = $('<ul />');
             var subcategory = $('option:selected', self).val();
+            $('html, body').animate({
+                scrollTop: resultsDiv.offset().top - 200
+            }, 2000);
+
+            resultsDiv.text("Looking up recommendations...");
             $.post(
                 POM_BLOOM.ajax_url,
                 {
@@ -123,10 +131,6 @@
                 },
                 function (result) {
                     if (result && result.success) {
-                        //console.log(result);
-                        var li,
-                            resultsDiv = self.parents('fieldset').find('.recommendations .results'),
-                            list = $('<ul />');
 
                         if (!result.goals.length) {
                             resultsDiv.text("No suggestions available for this category.");
