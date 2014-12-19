@@ -32,8 +32,8 @@
                                 $goal->post_title,
                                 $this->parent->assets_url . 'images/' .
                                 ( $goal->is_completed ? 'accept' : 'cross' ) .
-                                '.png'gst
-                            
+                                '.png'
+
                             );
 
                             $total += $goal->is_completed;
