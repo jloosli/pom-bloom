@@ -83,7 +83,7 @@ class POM_Bloom_Program {
 
 
     function bloom_create_goalset() {
-        $dow = 0; // Sunday
+        $dow = 6; // Saturday
         if ( date( 'w' ) === $dow ) {
             $this->addGoalset( date( 'Y-m-d', strtotime( 'next Monday' ) ) );
         }
