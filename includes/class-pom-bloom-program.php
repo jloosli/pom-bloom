@@ -9,6 +9,11 @@ if ( !defined( 'ABSPATH' ) ) {
     exit;
 }
 
+function pom_bloom_create_goalset() {
+    $bloom = POM_Bloom();
+    $bloom->program->bloom_create_goalset();
+}
+
 class POM_Bloom_Program {
     /**
      * Message displayed if user isn't subscribed to the program.
@@ -54,18 +59,26 @@ class POM_Bloom_Program {
 
         add_shortcode( 'bloom-program', array( $this, 'bloom_shortcode_func' ) );
         add_action( 'wp_ajax_pom_bloom', array( $this, 'ajax_callback' ) );
-        add_action( 'wp', array( $this, 'setup_cron' ) );
+        add_action( 'init', array( $this, 'setup_cron' ) );
+
     }
 
     function setup_cron() {
-        if ( !( wp_next_scheduled( 'bloom_create_goalset_event' ) ) ) {
-            wp_schedule_event( time(), 'daily', 'bloom_create_goalset_event' );
+        $event = 'bloom_create_goalset_event';
+        $bloom_cron = 'pom_bloom_create_goalset';
+        if(wp_next_scheduled($event)) {
+//            $timestamp = wp_next_scheduled($event);
+//            wp_unschedule_event($timestamp, $event);
+//            error_log('unset ' . $event);
         }
-        add_action( 'bloom_create_goalset_event', array( $this, 'bloom_create_goalset' ) );
+        if ( !( wp_next_scheduled( $event ) ) ) {
+            wp_schedule_event( time(), 'daily', $event );
+        }
+        add_action( $event, $bloom_cron );
     }
 
     function deactive_cron() {
-        wp_clear_scheduled_hook( 'bloom_create_goalset' );
+        wp_clear_scheduled_hook( 'bloom_create_goalset_event' );
     }
 
 
