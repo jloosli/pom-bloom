@@ -77,10 +77,10 @@
 </table>
 <h3>Available Actions</h3>
 <ul class="actions">
-    <li><a onclick="window.location.search='page='+this.getAttribute('href');return false;" href="instructions">Read over the instructions for Bloom</a></li>
-    <li><a onclick="window.location.search='page='+this.getAttribute('href');return false;" href="preferences">Update your game preferences</a></li>
-    <li><a onclick="window.location.search='page='+this.getAttribute('href');return false;" href="assessments">Look at previously completed self assessments</a>
-    <li><a onclick="window.location.search='page='+this.getAttribute('href');return false;" href="assessments.create">Take a new self assessment</a>
+    <li><a onclick="bloomNav(this);" href="instructions">Read over the instructions for Bloom</a></li>
+    <li><a onclick="bloomNav(this);" href="preferences">Update your game preferences</a></li>
+    <li><a onclick="bloomNav(this);" href="assessments">Look at previously completed self assessments</a>
+    <li><a onclick="bloomNav(this);" href="assessments.create">Take a new self assessment</a>
     </li>
     <?php if ( $this->canUserAddGoals( $current_user->ID ) ): ?>
         <li><a href="javascript:window.location.search='page=goals.set'">Set some new goals</a></li>

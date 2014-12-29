@@ -387,4 +387,21 @@
         };
     }
 
+
 })();
+
+// Navigate using ?page=
+function bloomNav(item) {
+    "use strict";
+    event.preventDefault();
+    if (!item) {
+        item = this;
+    }
+    var href = item.getAttribute('href');
+    if (href === '') {
+        window.location.search = '';
+    } else {
+        window.location.search = 'page=' + href;
+    }
+    return false;
+}
