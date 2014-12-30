@@ -36,7 +36,7 @@ require_once( 'includes/lib/class-pom-bloom-taxonomy.php' );
  * @return object POM_Bloom
  */
 function POM_Bloom () {
-	$instance = POM_Bloom::instance( __FILE__, '1.0.2' );
+	$instance = POM_Bloom::instance( __FILE__, '1.0.3' );
 
 	if ( is_null( $instance->settings ) ) {
 		$instance->settings = POM_Bloom_Settings::instance( $instance );
