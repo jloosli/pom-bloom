@@ -43,7 +43,7 @@
             <td data-goal="<?php echo $goal->ID; ?>" data-per_week="<?php echo $goal->per_week; ?>"
                 class="done <?php
                 echo ($is_serendipity && strlen($goal->post_title) ||
-                      (!$is_serendipity && array_sum($goal->completed) >= $goal->per_week)) ?
+                      (!$is_serendipity && array_sum(array_map('intval',(array) $goal->completed)) >= $goal->per_week)) ?
                     "set": "";
                 ?>">&nbsp;</td>
         </tr>

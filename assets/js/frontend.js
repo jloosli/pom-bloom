@@ -250,6 +250,7 @@
                 done_cell = self.siblings('.done'),
                 per_week = done_cell.data('per_week'),
                 total_set = 0;
+            self.addClass('checking');
 
             $.post(
                 POM_BLOOM.ajax_url,
@@ -263,7 +264,7 @@
                 },
                 function (result) {
                     if (result && result.success) {
-                        self.removeClass('set');
+                        self.removeClass('set checking');
                         done_cell.removeClass('set');
                         total_set = self.siblings('.set').length;
                         if (result.set) {
@@ -334,7 +335,12 @@
             showItem($('#bloom'));
         }
 
-    });
+        if(window.location.hostname === 'moms.loc') {
+            $('img').each(function (idx, item) {
+                item.src = item.src.replace('wp.com/moms.loc', 'wp.com/powerofmoms.com')
+            })
+        }
+    }); // END document.ready
 
     function expandGoal(node) {
         "use strict";

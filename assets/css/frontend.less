@@ -1,3 +1,44 @@
+@-webkit-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@-moz-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@-o-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@-ms-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 #bloom {
   @level_0: #90c74a;
   @level_1: #10ACD5;
@@ -58,6 +99,18 @@
     background: url('../images/accept.png') no-repeat center center;
   }
 
+  .checking {
+    background: url('../images/time.png') no-repeat center center transparent;
+    -webkit-animation: rotate 1s infinite;
+    -moz-animation: rotate 1s infinite;
+    -o-animation: rotate 1s infinite;
+    -ms-animation: rotate 1s infinite;
+    animation: rotate 1s infinite;
+    &:hover {
+      background-color:transparent !important;
+    }
+  }
+
   .clickable {
 
     &:hover {
@@ -72,6 +125,21 @@
     th div {
       height: 5.5em;
       cursor: pointer;
+    }
+  }
+
+  #goals_update {
+    th,td {
+      border: 1px solid #ddd;
+    }
+    textarea {
+      border: none;
+      height: 100%;
+      margin: 0;
+      padding: 5px;
+    }
+    thead th {
+      padding: 5px;
     }
   }
 

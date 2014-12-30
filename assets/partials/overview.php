@@ -24,9 +24,12 @@
         <tr>
             <th><?php echo $cat->name; ?></th>
             <?php $total = 0;
-            foreach ( $goalsets as $gs ): $total_gs[ $gs->name ] = 0; ?>
+            foreach ( $goalsets as $gs ):
+                if ( empty( $total_gs[ $gs->name ] ) ) {
+                    $total_gs[ $gs->name ] = 0;
+                } ?>
                 <th><?php
-                    if ( !empty( $goals ) && !empty($goals[ $gs->name ][ $cat->name ]) ) {
+                    if ( !empty( $goals ) && !empty( $goals[ $gs->name ][ $cat->name ] ) ) {
                         foreach ( $goals[ $gs->name ][ $cat->name ] as $goal ) {
                             printf( "<img title = '%s' src='%s' /> ",
                                 $goal->post_title,
@@ -36,8 +39,8 @@
 
                             );
 
-                            $total += $goal->is_completed;
-                            $total_gs[ $gs->name ] += $goal->is_completed;
+                            $total += (int) $goal->is_completed;
+                            $total_gs[ $gs->name ] += (int) $goal->is_completed;
 
                         }
                     } ?>
@@ -51,7 +54,7 @@
         <?php $total = 0;
         foreach ( $goalsets as $gs ): ?>
             <th><?php
-                if(!empty($goals) && !empty($goals[ $gs->name ]['serendipity'])) {
+                if ( !empty( $goals ) && !empty( $goals[ $gs->name ]['serendipity'] ) ) {
                     foreach ( $goals[ $gs->name ]['serendipity'] as $goal ) {
                         printf( "<img src='%s' /> ",
                             $this->parent->assets_url . 'images/' .
@@ -61,7 +64,7 @@
                         $total += $goal->is_completed;
                         $total_gs[ $gs->name ] += $goal->is_completed;
                     }
-                }?>
+                } ?>
             </th>
         <?php endforeach; ?>
         <th><?php echo $total; ?></th>
