@@ -4,10 +4,11 @@
 
         var instructions = bloom.find('.instructions');
         instructions.wrapInner("<div class='ins_content'></div>")
-            .append("<div class='ins_title'><h3>Instructions</h3> <small>(Click to expand)</small></div>")
-            .click(function (event) {
+            .prepend("<div class='ins_title'><h3>Instructions</h3> <small>(Click to expand)</small><small style='display:none;'>(Click to collapse)</small></div>")
+            .click(function () {
                 "use strict";
-                $("div", this).toggle();
+                $("div.ins_content", this).toggle();
+                $("div.ins_title small", this).toggle();
             });
 
         // =========================

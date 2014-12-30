@@ -328,12 +328,16 @@ class POM_Bloom_Program {
         foreach ( $terms as $term ) {
             if ( (int) $term->parent === (int) $parent ) {
                 $questions = $this->get_category_questions( $term->term_id );
-
-                $h[] = [
+                $node = [
                     'name'      => $term->name,
                     'questions' => $questions,
                     'sections'  => $this->generate_hierarchy( $terms, $term->term_id )
                 ];
+
+                // Only add node if there are questions and/or sections
+                if(count($node['questions']) || count($node['sections'])) {
+                    $h[] = $node;
+                }
             }
         }
 

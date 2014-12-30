@@ -6,6 +6,7 @@
     transform: rotate(360deg);
   }
 }
+
 @-moz-keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -14,6 +15,7 @@
     transform: rotate(360deg);
   }
 }
+
 @-o-keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -22,6 +24,7 @@
     transform: rotate(360deg);
   }
 }
+
 @-ms-keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -30,6 +33,7 @@
     transform: rotate(360deg);
   }
 }
+
 @keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -66,6 +70,8 @@
     padding:    15px;
     border:     4px solid #726f75;
     margin:     20px 0;
+    cursor:     pointer;
+
     .ins_content {
       display: none;
     }
@@ -100,14 +106,14 @@
   }
 
   .checking {
-    background: url('../images/time.png') no-repeat center center transparent;
+    background:        url('../images/time.png') no-repeat center center transparent;
     -webkit-animation: rotate 1s infinite;
-    -moz-animation: rotate 1s infinite;
-    -o-animation: rotate 1s infinite;
-    -ms-animation: rotate 1s infinite;
-    animation: rotate 1s infinite;
+    -moz-animation:    rotate 1s infinite;
+    -o-animation:      rotate 1s infinite;
+    -ms-animation:     rotate 1s infinite;
+    animation:         rotate 1s infinite;
     &:hover {
-      background-color:transparent !important;
+      background-color: transparent !important;
     }
   }
 
@@ -129,13 +135,13 @@
   }
 
   #goals_update {
-    th,td {
+    th, td {
       border: 1px solid #ddd;
     }
     textarea {
-      border: none;
-      height: 100%;
-      margin: 0;
+      border:  none;
+      height:  100%;
+      margin:  0;
       padding: 5px;
     }
     thead th {
@@ -168,7 +174,7 @@
       }
     }
   }
-  h1,h2,h3,th {
+  h1, h2, h3, th {
     &.level_0 {
       color: @level_0;
     }
@@ -193,15 +199,14 @@
   }
 
   legend {
-    color: white;
-    padding: 3px;
+    color:      white;
+    padding:    3px;
     background: @level_0;
-    border: 1px solid @level_1;
+    border:     1px solid @level_1;
   }
   fieldset {
     margin: 5px 0;
   }
-
 
   input[type="submit"] {
     margin: 20px 0;
